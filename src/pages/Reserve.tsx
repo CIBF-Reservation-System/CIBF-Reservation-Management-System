@@ -1,44 +1,94 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Search } from "lucide-react";
+/* Local Stall types and a simple StallCard component (replaces missing "@/components/StallCard") */
 
 type StallSize = "Small" | "Medium" | "Large";
 
-interface Stall {
+type Stall = {
   id: string;
   label: string;
   size: StallSize;
   price: number;
   available: boolean;
-}
+  area: string;
+};
+
+const StallCard = ({
+  stall,
+  isSelected,
+  onSelect,
+}: {
+  stall: Stall;
+  isSelected: boolean;
+  onSelect: (stall: Stall) => void;
+}) => {
+  return (
+    <div
+      className={`border rounded-md p-4 flex flex-col justify-between ${
+        stall.available ? "bg-white" : "bg-muted/50"
+      }`}
+    >
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-semibold">{stall.label}</h4>
+          <span className="text-sm text-muted-foreground">{stall.area}</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-2">{stall.size}</p>
+        <p className="font-medium">LKR {stall.price.toLocaleString()}</p>
+      </div>
+
+      <div className="mt-4">
+        <button
+          onClick={() => onSelect(stall)}
+          disabled={!stall.available}
+          className={`w-full px-3 py-2 rounded-md text-sm ${
+            isSelected
+              ? "bg-slate-900 text-white"
+              : "bg-transparent border border-slate-200 text-slate-900"
+          } ${!stall.available ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          {stall.available ? (isSelected ? "Selected" : "Select") : "Unavailable"}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const mockStalls: Stall[] = [
-  { id: "1", label: "A1", size: "Small", price: 15000, available: true },
-  { id: "2", label: "A2", size: "Medium", price: 25000, available: true },
-  { id: "3", label: "A3", size: "Large", price: 40000, available: false },
-  { id: "4", label: "B1", size: "Small", price: 15000, available: true },
-  { id: "5", label: "B2", size: "Medium", price: 25000, available: true },
-  { id: "6", label: "B3", size: "Large", price: 40000, available: true },
-  { id: "7", label: "C1", size: "Small", price: 15000, available: true },
-  { id: "8", label: "C2", size: "Medium", price: 25000, available: false },
-  { id: "9", label: "C3", size: "Large", price: 40000, available: true },
+  { id: "1", label: "A1", size: "Small", price: 15000, available: true, area: "Hall A" },
+  { id: "2", label: "A2", size: "Medium", price: 25000, available: true, area: "Hall A" },
+  { id: "3", label: "A3", size: "Large", price: 40000, available: false, area: "Hall A" },
+  { id: "4", label: "A4", size: "Small", price: 15000, available: true, area: "Hall A" },
+  { id: "5", label: "B1", size: "Small", price: 15000, available: true, area: "Hall B" },
+  { id: "6", label: "B2", size: "Medium", price: 25000, available: true, area: "Hall B" },
+  { id: "7", label: "B3", size: "Large", price: 40000, available: true, area: "Hall B" },
+  { id: "8", label: "B4", size: "Medium", price: 25000, available: false, area: "Hall B" },
+  { id: "9", label: "C1", size: "Small", price: 15000, available: true, area: "Outdoor" },
+  { id: "10", label: "C2", size: "Medium", price: 25000, available: false, area: "Outdoor" },
+  { id: "11", label: "C3", size: "Large", price: 40000, available: true, area: "Outdoor" },
+  { id: "12", label: "C4", size: "Small", price: 15000, available: true, area: "Outdoor" },
 ];
 
 const Reserve = () => {
   const [selectedSize, setSelectedSize] = useState<StallSize | "All">("All");
+  const [selectedArea, setSelectedArea] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStalls, setSelectedStalls] = useState<Stall[]>([]);
 
+  const areas = ["All", "Hall A", "Hall B", "Outdoor"];
+
   const filteredStalls = mockStalls.filter((stall) => {
     const matchesSize = selectedSize === "All" || stall.size === selectedSize;
+    const matchesArea = selectedArea === "All" || stall.area === selectedArea;
     const matchesSearch = stall.label.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSize && matchesSearch && stall.available;
+    return matchesSize && matchesArea && matchesSearch;
   });
 
   const handleStallSelect = (stall: Stall) => {
@@ -66,18 +116,39 @@ const Reserve = () => {
 
         {/* Filters */}
         <div className="mb-8 space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {(["All", "Small", "Medium", "Large"] as const).map((size) => (
-              <Button
-                key={size}
-                variant={selectedSize === size ? "default" : "outline"}
-                onClick={() => setSelectedSize(size)}
-              >
-                {size}
-              </Button>
-            ))}
+          {/* Size Filters */}
+          <div>
+            <p className="text-sm font-medium mb-2">Stall Size</p>
+            <div className="flex flex-wrap gap-2">
+              {(["All", "Small", "Medium", "Large"] as const).map((size) => (
+                <Button
+                  key={size}
+                  variant={selectedSize === size ? "default" : "outline"}
+                  onClick={() => setSelectedSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
           </div>
 
+          {/* Area Filters */}
+          <div>
+            <p className="text-sm font-medium mb-2">Area / Zone</p>
+            <div className="flex flex-wrap gap-2">
+              {areas.map((area) => (
+                <Button
+                  key={area}
+                  variant={selectedArea === area ? "default" : "outline"}
+                  onClick={() => setSelectedArea(area)}
+                >
+                  {area}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search */}
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -92,28 +163,27 @@ const Reserve = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Stall Grid */}
           <div className="lg:col-span-2">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {filteredStalls.map((stall) => {
-                const isSelected = selectedStalls.find((s) => s.id === stall.id);
-                return (
-                  <Card
-                    key={stall.id}
-                    className={`cursor-pointer transition-all hover:scale-105 hover:shadow-elegant ${
-                      isSelected ? "ring-2 ring-primary" : ""
-                    }`}
-                    onClick={() => handleStallSelect(stall)}
-                  >
-                    <CardContent className="p-6 text-center space-y-3">
-                      <div className="text-3xl font-bold text-primary">{stall.label}</div>
-                      <Badge variant="secondary">{stall.size}</Badge>
-                      <div className="text-xl font-semibold">
-                        LKR {stall.price.toLocaleString()}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+            {filteredStalls.length === 0 ? (
+              <Card className="p-12 text-center">
+                <p className="text-muted-foreground">
+                  No stalls found matching your filters. Try adjusting your search.
+                </p>
+              </Card>
+            ) : (
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {filteredStalls.map((stall) => {
+                  const isSelected = !!selectedStalls.find((s) => s.id === stall.id);
+                  return (
+                    <StallCard
+                      key={stall.id}
+                      stall={stall}
+                      isSelected={isSelected}
+                      onSelect={handleStallSelect}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Selection Summary */}
