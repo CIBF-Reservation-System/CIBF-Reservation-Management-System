@@ -28,11 +28,28 @@ const Header = () => {
             >
               Home
             </Link>
+            <Link 
+              to="/reserve" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/reserve') ? 'text-primary' : 'text-foreground'
+              }`}
+            >
+              Reserve
+            </Link>
+            <Link 
+              to="/bookings" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/bookings') ? 'text-primary' : 'text-foreground'
+              }`}
+            >
+              My Bookings
+            </Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost">Login</Button>
-            <Button>Sign Up</Button>
+            <Link to="/auth">
+              <Button>Login / Sign Up</Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -62,9 +79,28 @@ const Header = () => {
               >
                 Home
               </Link>
+              <Link 
+                to="/reserve" 
+                className={`text-sm font-medium py-2 ${
+                  isActive('/reserve') ? 'text-primary' : 'text-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Reserve
+              </Link>
+              <Link 
+                to="/bookings" 
+                className={`text-sm font-medium py-2 ${
+                  isActive('/bookings') ? 'text-primary' : 'text-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                My Bookings
+              </Link>
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" className="w-full">Login</Button>
-                <Button className="w-full">Sign Up</Button>
+                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">Login / Sign Up</Button>
+                </Link>
               </div>
             </nav>
           </div>

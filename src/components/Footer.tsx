@@ -24,6 +24,16 @@ const Footer = () => {
                   Home
                 </Link>
               </li>
+              <li>
+                <Link to="/reserve" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Reserve Stall
+                </Link>
+              </li>
+              <li>
+                <Link to="/bookings" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  My Bookings
+                </Link>
+              </li>
             </ul>
           </div>
 
