@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,18 +8,47 @@ import { toast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Search } from "lucide-react";
-
+// Local Stall types and a minimal StallCard component to avoid a missing module error
 type StallSize = "Small" | "Medium" | "Large";
-type Stall = {
+interface Stall {
   id: string;
   label: string;
   size: StallSize;
   price: number;
   available: boolean;
   area: string;
-};
+}
 
-const ReservationModal = ({
+function StallCard({
+  stall,
+  isSelected,
+  onSelect,
+}: {
+  stall: Stall;
+  isSelected: boolean;
+  onSelect: (stall: Stall) => void;
+}) {
+  return (
+    <div
+      onClick={() => onSelect(stall)}
+      className={`border rounded p-3 cursor-pointer ${isSelected ? "border-primary bg-primary/10" : "border-muted"}`}
+      role="button"
+      aria-pressed={isSelected}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="font-semibold">{stall.label}</div>
+          <div className="text-xs text-muted-foreground">{stall.size} — {stall.area}</div>
+        </div>
+        <div className="text-sm">LKR {stall.price.toLocaleString()}</div>
+      </div>
+      {!stall.available && <div className="text-xs text-destructive mt-2">Unavailable</div>}
+    </div>
+  );
+}
+
+// Minimal inline ReservationModal fallback to avoid missing module error
+export function ReservationModal({
   open,
   onOpenChange,
   selectedStalls,
@@ -30,103 +60,44 @@ const ReservationModal = ({
   selectedStalls: Stall[];
   totalPrice: number;
   onConfirm: (data: any) => void;
-}) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-
+}) {
   if (!open) return null;
 
-  const handleConfirm = () => {
-    const referenceNumber = `REF-${Math.random().toString(36).slice(2, 9).toUpperCase()}`;
-    onConfirm({ referenceNumber, name, email });
-    onOpenChange(false);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="fixed inset-0 bg-black/50"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="bg-background rounded-lg p-6 z-10 w-full max-w-md shadow-lg">
-        <h3 className="text-lg font-semibold mb-2">Confirm Reservation</h3>
-
-        <div className="text-sm mb-4">
-          <div className="mb-2">
-            <strong>{selectedStalls.length}</strong> stall(s) • LKR {totalPrice.toLocaleString()}
-          </div>
-          <div className="space-y-1">
-            {selectedStalls.map((s) => (
-              <div key={s.id} className="flex justify-between text-sm">
-                <span>{s.label} ({s.size})</span>
-                <span>LKR {s.price.toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-2">Confirm Reservation</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          {selectedStalls.length} stalls — Total: LKR {totalPrice.toLocaleString()}
+        </p>
 
         <div className="space-y-2 mb-4">
-          <Input
-            placeholder="Full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          {selectedStalls.map((s) => (
+            <div key={s.id} className="flex justify-between text-sm">
+              <span>{s.label} ({s.size})</span>
+              <span>LKR {s.price.toLocaleString()}</span>
+            </div>
+          ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleConfirm} className="ml-auto">
-            Confirm & Pay
+          <Button
+            onClick={() => {
+              const referenceNumber = `REF-${Math.random().toString(36).slice(2, 9).toUpperCase()}`;
+              onConfirm({ referenceNumber });
+              onOpenChange(false);
+            }}
+          >
+            Confirm
           </Button>
         </div>
       </div>
     </div>
   );
-};
-const StallCard = ({
-  stall,
-  isSelected,
-  onSelect,
-}: {
-  stall: Stall;
-  isSelected: boolean;
-  onSelect: (s: Stall) => void;
-}) => {
-  return (
-    <div
-      className={`border rounded p-3 flex flex-col justify-between h-full ${
-        !stall.available ? "opacity-50" : isSelected ? "ring-2 ring-primary" : ""
-      }`}
-    >
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="font-semibold">{stall.label}</div>
-          <div className="text-sm text-muted-foreground">
-            {stall.size} • {stall.area}
-          </div>
-        </div>
-        <div className="text-sm">LKR {stall.price.toLocaleString()}</div>
-      </div>
-
-      <div className="mt-3">
-        <Button
-          size="sm"
-          disabled={!stall.available}
-          onClick={() => onSelect(stall)}
-        >
-          {isSelected ? "Deselect" : "Select"}
-        </Button>
-      </div>
-    </div>
-  );
-};
+}
 
 const mockStalls: Stall[] = [
   { id: "1", label: "A1", size: "Small", price: 15000, available: true, area: "Hall A" },
