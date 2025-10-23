@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,96 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Search } from "lucide-react";
-// Local Stall types and a minimal StallCard component to avoid a missing module error
-type StallSize = "Small" | "Medium" | "Large";
-interface Stall {
-  id: string;
-  label: string;
-  size: StallSize;
-  price: number;
-  available: boolean;
-  area: string;
-}
-
-function StallCard({
-  stall,
-  isSelected,
-  onSelect,
-}: {
-  stall: Stall;
-  isSelected: boolean;
-  onSelect: (stall: Stall) => void;
-}) {
-  return (
-    <div
-      onClick={() => onSelect(stall)}
-      className={`border rounded p-3 cursor-pointer ${isSelected ? "border-primary bg-primary/10" : "border-muted"}`}
-      role="button"
-      aria-pressed={isSelected}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="font-semibold">{stall.label}</div>
-          <div className="text-xs text-muted-foreground">{stall.size} — {stall.area}</div>
-        </div>
-        <div className="text-sm">LKR {stall.price.toLocaleString()}</div>
-      </div>
-      {!stall.available && <div className="text-xs text-destructive mt-2">Unavailable</div>}
-    </div>
-  );
-}
-
-// Minimal inline ReservationModal fallback to avoid missing module error
-export function ReservationModal({
-  open,
-  onOpenChange,
-  selectedStalls,
-  totalPrice,
-  onConfirm,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  selectedStalls: Stall[];
-  totalPrice: number;
-  onConfirm: (data: any) => void;
-}) {
-  if (!open) return null;
-
-  return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-2">Confirm Reservation</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          {selectedStalls.length} stalls — Total: LKR {totalPrice.toLocaleString()}
-        </p>
-
-        <div className="space-y-2 mb-4">
-          {selectedStalls.map((s) => (
-            <div key={s.id} className="flex justify-between text-sm">
-              <span>{s.label} ({s.size})</span>
-              <span>LKR {s.price.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              const referenceNumber = `REF-${Math.random().toString(36).slice(2, 9).toUpperCase()}`;
-              onConfirm({ referenceNumber });
-              onOpenChange(false);
-            }}
-          >
-            Confirm
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { StallCard, Stall, StallSize } from "@/components/StallCard";
+import { ReservationModal } from "@/components/ReservationModal";
 
 const mockStalls: Stall[] = [
   { id: "1", label: "A1", size: "Small", price: 15000, available: true, area: "Hall A" },
