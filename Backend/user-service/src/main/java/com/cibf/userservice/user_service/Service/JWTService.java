@@ -7,11 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Map;
+
 
 @Service
 public class JWTService {
@@ -32,9 +30,11 @@ public class JWTService {
 //    }
 
     // Generate JWT token (15 minutes validity)
-    public String getJWTToken(String email) {
+    public String getJWTToken(String email, String roleName , String businessName) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", roleName)
+                .claim("businessName", "Doe Enterprises")
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                 .signWith(secretKey)
