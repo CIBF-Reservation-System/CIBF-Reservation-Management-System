@@ -11,6 +11,8 @@ import Bookings from "./pages/Bookings";
 import Genres from "./pages/Genres";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Refund from "./pages/Refund";
 import { ConfirmationSuccess } from "./components/ConfirmationSuccess";
 import NotFound from "./pages/NotFound";
 
@@ -48,6 +50,8 @@ const App = () => (
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/genres" element={<Genres />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund" element={<Refund />} />
           <Route path="/confirmation" element={<ConfirmationRoute />} />
           <Route path="/organizer" element={<OrganizerDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
