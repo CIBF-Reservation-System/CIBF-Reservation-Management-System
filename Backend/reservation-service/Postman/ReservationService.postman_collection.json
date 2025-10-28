@@ -1,0 +1,179 @@
+{
+  "info": {
+    "name": "_03_Reservation Service API",
+    "description": "Complete API collection for the Reservation Service microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "reservation-service"
+  },
+  "item": [
+    {
+      "name": "Controller Test",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/controller_test",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "controller_test"]
+        },
+        "description": "Test endpoint to verify the reservation controller is working"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Reservation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T16:00:00\",\n  \"notes\": \"Need projector setup\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/create",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "create"]
+        },
+        "description": "Create a new reservation"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    pm.environment.set('reservation_id', response.reservationId);",
+              "    console.log('Reservation created with ID:', response.reservationId);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Get All Reservations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations"]
+        },
+        "description": "Retrieve all reservations"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Reservation by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}"]
+        },
+        "description": "Retrieve a specific reservation by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Reservations by User ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/user/{{user_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "user", "{{user_id}}"]
+        },
+        "description": "Retrieve all reservations for a specific user"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Reservation",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Updated Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T17:00:00\",\n  \"notes\": \"Updated: Need projector and sound system\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}"]
+        },
+        "description": "Update an existing reservation"
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel Reservation",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}/cancel",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}", "cancel"]
+        },
+        "description": "Cancel a reservation"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Reservation",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}"]
+        },
+        "description": "Delete a reservation (only cancelled or pending reservations can be deleted)"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for dynamic data",
+          "pm.globals.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "v1",
+      "type": "string"
+    }
+  ]
+}

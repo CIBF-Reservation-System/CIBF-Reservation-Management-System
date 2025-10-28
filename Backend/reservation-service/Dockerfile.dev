@@ -1,0 +1,24 @@
+# Development Dockerfile with hot reloading
+FROM openjdk:17-jdk-slim
+
+# Install Maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the Maven wrapper and pom.xml
+COPY mvnw .
+COPY pom.xml .
+
+# Copy the source code
+COPY src ./src
+
+# Make mvnw executable
+RUN chmod +x mvnw
+
+# Expose the port the app runs on
+EXPOSE 8083
+
+# Run the application with hot reloading
+CMD ["./mvnw", "spring-boot:run"]
