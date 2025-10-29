@@ -45,6 +45,14 @@ public class StallService {
         Stall stall = stallRepo.getStallById(stallId);
         return modelMapper.map(stall, StallDTO.class);
     }
+    public List<StallDTO> getAvailableStalls() {
+        List<Stall> availableStalls = stallRepo.getAvailableStalls();
+        return modelMapper.map(availableStalls, new TypeToken<List<StallDTO>>(){}.getType());
+    }
 
+    public List<StallDTO> getReservedStalls() {
+        List<Stall> reservedStalls = stallRepo.getReservedStalls();
+        return modelMapper.map(reservedStalls, new TypeToken<List<StallDTO>>(){}.getType());
+    }
 
 }

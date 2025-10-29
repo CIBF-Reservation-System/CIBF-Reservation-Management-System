@@ -45,4 +45,15 @@ public class StallController {
     public String deleteStalls(@PathVariable Integer stallId) {
         return stallService.deleteStalls(stallId);
     }
+
+    @GetMapping("/available")
+    public List<StallDTO> getAvailableStalls() {
+        return stallService.getAvailableStalls();
+    }
+
+    @GetMapping("/reserved")
+    public List<StallDTO> getReservedStalls() {
+        return stallService.getReservedStalls();
+    }
+
 }
