@@ -1,91 +1,42 @@
 package om.cibf.reservationservice.reservation.Controller;
 
-import om.cibf.reservationservice.reservation.DTO.ReservationRequestDTO;
-import om.cibf.reservationservice.reservation.DTO.ReservationResponseDTO;
-import om.cibf.reservationservice.reservation.Service.ReservationService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
+import om.cibf.reservationservice.reservation.Entity.Reservation;
+import om.cibf.reservationservice.reservation.common.ReservationResponse;
+import om.cibf.reservationservice.reservation.dto.ReservationDTO;
+import om.cibf.reservationservice.reservation.dto.ReservationEventDTO;
+import om.cibf.reservationservice.reservation.service.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/reservations")
+@RequestMapping("/api/v1")
 public class ReservationController {
+    @Autowired
+    private ReservationService reservationService;
 
-    private final ReservationService reservationService;
-
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
+    @GetMapping( "/allreservations")
+    public List<ReservationDTO> getAllReservations() {
+        return reservationService.getAllReservations();
     }
 
-    @GetMapping("/controller_test")
-    public ResponseEntity<String> controllerTest() {
-        return ResponseEntity.status(200).body("Reservation Controller is working!");
+    @GetMapping("/reserve/{reserveId}")
+    public ReservationDTO getReservation(@PathVariable Integer reserveId) {
+        return reservationService.getReservationById(reserveId);
     }
 
-    // Create a new reservation
-    @PostMapping("/create")
-    public ResponseEntity<ReservationResponseDTO> createReservation(@RequestBody ReservationRequestDTO request) {
-        ReservationResponseDTO response = reservationService.createReservation(request);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/addreservation")
+    public ReservationDTO saveStall(@RequestBody ReservationDTO reserverId) {
+        return reservationService.saveReservation(reserverId);
     }
 
-    // Get all reservations
-    @GetMapping
-    public ResponseEntity<List<ReservationResponseDTO>> getAllReservations() {
-        List<ReservationResponseDTO> reservations = reservationService.getAllReservations();
-        return ResponseEntity.ok(reservations);
+
+    @DeleteMapping("/deleterserve/{reserveId}")
+    public String deleteReservation(@PathVariable Integer reserveId) {
+        return reservationService.deleteReservation(reserveId);
     }
 
-    // Get reservation by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ReservationResponseDTO> getReservation(@PathVariable UUID id) {
-        ReservationResponseDTO response = reservationService.getReservationById(id);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
 
-    // Get reservations by user ID
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReservationResponseDTO>> getReservationsByUser(@PathVariable UUID userId) {
-        List<ReservationResponseDTO> reservations = reservationService.getReservationsByUserId(userId);
-        return ResponseEntity.ok(reservations);
-    }
-
-    // Update an existing reservation
-    @PutMapping("/{id}")
-    public ResponseEntity<ReservationResponseDTO> updateReservation(@PathVariable UUID id, @RequestBody ReservationRequestDTO request) {
-        ReservationResponseDTO response = reservationService.updateReservation(id, request);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    // Cancel a reservation
-    @PatchMapping("/{id}/cancel")
-    public ResponseEntity<ReservationResponseDTO> cancelReservation(@PathVariable UUID id) {
-        ReservationResponseDTO response = reservationService.cancelReservation(id);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    // Delete a reservation
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReservation(@PathVariable UUID id) {
-        boolean deleted = reservationService.deleteReservation(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete reservation");
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
 }

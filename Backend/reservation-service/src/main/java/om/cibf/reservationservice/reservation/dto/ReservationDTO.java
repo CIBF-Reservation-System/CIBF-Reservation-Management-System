@@ -1,20 +1,19 @@
-package om.cibf.reservationservice.reservation.Entity;
+package om.cibf.reservationservice.reservation.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
-@Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class Reservation {
-    @Id
+public class ReservationDTO {
     private int id;
     private int reserveId;
     private int userId;
@@ -26,5 +25,4 @@ public class Reservation {
     private LocalDateTime createDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;
-
 }
