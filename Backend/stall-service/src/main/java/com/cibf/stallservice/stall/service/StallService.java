@@ -1,6 +1,5 @@
 package com.cibf.stallservice.stall.service;
 
-
 import com.cibf.stallservice.stall.dto.StallDTO;
 import com.cibf.stallservice.stall.model.Stall;
 import com.cibf.stallservice.stall.repository.StallRepo;

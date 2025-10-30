@@ -1,9 +1,0 @@
-target/
-.git/
-.gitignore
-README.md
-mvnw.cmd
-*.log
-.DS_Store
-Dockerfile
-docker-compose.yml
