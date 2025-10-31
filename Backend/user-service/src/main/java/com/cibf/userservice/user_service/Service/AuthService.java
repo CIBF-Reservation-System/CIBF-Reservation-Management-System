@@ -1,9 +1,6 @@
 package com.cibf.userservice.user_service.Service;
 
-import com.cibf.userservice.user_service.DTO.LoginRequestDTO;
-import com.cibf.userservice.user_service.DTO.LoginResponseDTO;
-import com.cibf.userservice.user_service.DTO.RegisterRequestDTO;
-import com.cibf.userservice.user_service.DTO.RegisterResponseDTO;
+import com.cibf.userservice.user_service.DTO.*;
 import com.cibf.userservice.user_service.Entity.Role;
 import com.cibf.userservice.user_service.Entity.UserEntity;
 import com.cibf.userservice.user_service.Repository.RoleRepository;
@@ -40,17 +37,19 @@ public class AuthService {
         return new RegisterResponseDTO(String.format("user registered at %s", userData.getUserId()),null);
     }
 
+
     public LoginResponseDTO login(LoginRequestDTO loginData) {
         try {
-            // Authenticate user
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginData.getEmail(), loginData.getPassword())
             );
         } catch (Exception e) {
-            return new LoginResponseDTO(null, "Invalid email or password", "error");
+            return LoginResponseDTO.builder()
+                    .error("Invalid email or password")
+                    .message("error")
+                    .build();
         }
 
-        // Fetch user from DB
         UserEntity user = userRepository.findByEmail(loginData.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found in DB"));
 
@@ -61,9 +60,21 @@ public class AuthService {
                 user.getBusinessName()
         );
 
-        // Return DTO
-        return new LoginResponseDTO(token, null, "Login successful!");
+        // Build the user response
+        UserResponseDTO userDto = UserResponseDTO.builder()
+                .email(user.getEmail())
+                .role(user.getRole().getRoleName())
+                .businessName(user.getBusinessName())
+                .phone(user.getPhone())
+                .build();
+
+        // Return response DTO
+        return LoginResponseDTO.builder()
+                .message("Login successful")
+                .user(userDto)
+                .build();
     }
+
 
     // check user is in the database
     private Boolean isUserEnable(String email){

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import confetti from "canvas-confetti";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stall } from "@/components/StallCard";
-import { CheckCircle2 } from "lucide-react";
 
 const reservationSchema = z.object({
   businessName: z
@@ -57,8 +56,7 @@ export const ReservationModal = ({
   totalPrice,
   onConfirm,
 }: ReservationModalProps) => {
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [referenceNumber, setReferenceNumber] = useState("");
+  const navigate = useNavigate();
 
   const {
     register,
@@ -83,91 +81,39 @@ export const ReservationModal = ({
     return `${prefix}-${timestamp}-${random}`;
   };
 
-  const triggerConfetti = () => {
-    const duration = 2000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    const randomInRange = (min: number, max: number) =>
-      Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-      });
-    }, 250);
-  };
-
   const onSubmit = async (data: ReservationFormData) => {
     const refNumber = generateReferenceNumber();
-    setReferenceNumber(refNumber);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    setIsSuccess(true);
-    triggerConfetti();
+    // Call parent callback
+    onConfirm({ ...data, referenceNumber: refNumber });
+    
+    // Close modal
+    onOpenChange(false);
+    reset();
 
-    // Call parent callback with full data
+    // Navigate to success page
     setTimeout(() => {
-      onConfirm({ ...data, referenceNumber: refNumber });
-      reset();
-      setIsSuccess(false);
-      onOpenChange(false);
-    }, 3000);
+      navigate("/confirmation", {
+        state: {
+          referenceNumber: refNumber,
+          stallLabels: selectedStalls.map(s => s.label),
+          businessName: data.businessName,
+          email: data.email,
+          totalPrice,
+        },
+      });
+    }, 100);
   };
 
   const handleClose = () => {
-    if (!isSubmitting && !isSuccess) {
+    if (!isSubmitting) {
       reset();
-      setIsSuccess(false);
       onOpenChange(false);
     }
   };
-
-  if (isSuccess) {
-    return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
-            <div className="rounded-full bg-primary/10 p-4">
-              <CheckCircle2 className="h-12 w-12 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-semibold mb-2">
-                Reservation Confirmed!
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Your booking reference is:
-              </p>
-              <p className="text-xl font-mono font-bold text-primary">
-                {referenceNumber}
-              </p>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              We've sent a confirmation email with your QR pass. You'll be
-              redirected to My Bookings shortly.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

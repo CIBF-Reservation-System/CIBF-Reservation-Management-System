@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginResponseDTO {
-    private String message;
-    private String error;
-    private UserResponseDTO user;
+public class UserResponseDTO {
+    private String email;
+    private String role;
+    private String businessName;
+    private String phone;
 }
