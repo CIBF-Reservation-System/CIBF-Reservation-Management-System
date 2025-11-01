@@ -7,6 +7,7 @@ import com.cibf.userservice.user_service.Repository.RoleRepository;
 import com.cibf.userservice.user_service.Repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,17 +62,16 @@ public class AuthService {
         );
 
         // Build the user response
-        UserResponseDTO userDto = UserResponseDTO.builder()
+        LoginUserDTO loginUserDto = LoginUserDTO.builder()
                 .email(user.getEmail())
                 .role(user.getRole().getRoleName())
-                .businessName(user.getBusinessName())
-                .phone(user.getPhone())
                 .build();
 
         // Return response DTO
         return LoginResponseDTO.builder()
                 .message("Login successful")
-                .user(userDto)
+                .user(loginUserDto)
+                .token(token)
                 .build();
     }
 
@@ -100,5 +100,27 @@ public class AuthService {
 
         return userRepository.save(newUser);
     }
+
+
+    // Get current user info
+    public UserResponseDTO getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
+            String email = userDetails.getUsername();
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return new UserResponseDTO(
+                    user.getEmail(),
+                    user.getContactPerson(),
+                    user.getBusinessName(),
+                    user.getPhone(),
+                    user.getRole().getRoleName()
+            );
+        }
+        throw new RuntimeException("Unauthorized access!");
+    }
+
 
 }

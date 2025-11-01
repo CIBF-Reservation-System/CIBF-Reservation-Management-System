@@ -1,5 +1,6 @@
 package com.cibf.userservice.user_service.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +13,9 @@ import lombok.NoArgsConstructor;
 public class LoginResponseDTO {
     private String message;
     private String error;
-    private UserResponseDTO user;
+    private LoginUserDTO user;
+
+    // not visible in the JSON, only usable by the controller.
+    @JsonIgnore
+    private String token;
 }
