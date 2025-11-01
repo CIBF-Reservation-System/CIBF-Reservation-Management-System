@@ -83,7 +83,7 @@ mvn spring-boot:run
 
 - Build and serve React frontend separately:
 ```bash
-cd NewFrontend
+cd Frontend
 npm install
 npm run dev
 ```
