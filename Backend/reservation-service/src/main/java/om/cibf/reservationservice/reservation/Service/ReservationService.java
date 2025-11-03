@@ -4,6 +4,8 @@ import om.cibf.reservationservice.reservation.DTO.ReservationRequestDTO;
 import om.cibf.reservationservice.reservation.DTO.ReservationResponseDTO;
 import om.cibf.reservationservice.reservation.Entity.Reservation;
 import om.cibf.reservationservice.reservation.Repository.ReservationRepository;
+import om.cibf.reservationservice.reservation.model.ReservationEvent;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +19,12 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private static final String TOPIC = "reservation-events";
 
-    public ReservationService(ReservationRepository reservationRepository) {
+    public ReservationService(ReservationRepository reservationRepository, KafkaTemplate<String, String> kafkaTemplate) {
         this.reservationRepository = reservationRepository;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public ReservationResponseDTO createReservation(ReservationRequestDTO request) {
@@ -54,6 +59,9 @@ public class ReservationService {
                     .build();
 
             Reservation savedReservation = reservationRepository.save(reservation);
+
+            ReservationEvent event = new ReservationEvent("CREATED", savedReservation.getReservationId().toString(), savedReservation.getUserId().toString(), savedReservation.getStallId().toString());
+            kafkaTemplate.send(TOPIC, event.toString());
 
             return mapToResponseDTO(savedReservation, "Reservation created successfully");
 
@@ -135,6 +143,8 @@ public class ReservationService {
         reservation.setNotes(request.getNotes());
 
         Reservation updatedReservation = reservationRepository.save(reservation);
+        ReservationEvent event = new ReservationEvent("UPDATED", updatedReservation.getReservationId().toString(), updatedReservation.getUserId().toString(), updatedReservation.getStallId().toString());
+        kafkaTemplate.send(TOPIC, event.toString());
         return mapToResponseDTO(updatedReservation, "Reservation updated successfully");
     }
 
@@ -163,7 +173,28 @@ public class ReservationService {
         reservation.setStatus(Reservation.ReservationStatus.CANCELLED);
         Reservation updatedReservation = reservationRepository.save(reservation);
 
+        ReservationEvent event = new ReservationEvent("CANCELLED", updatedReservation.getReservationId().toString(), updatedReservation.getUserId().toString(), updatedReservation.getStallId().toString());
+        kafkaTemplate.send(TOPIC, event.toString());
+
         return mapToResponseDTO(updatedReservation, "Reservation cancelled successfully");
+    }
+
+    public ReservationResponseDTO updateReservationStatus(UUID reservationId, Reservation.ReservationStatus status) {
+        Optional<Reservation> reservationOpt = reservationRepository.findById(reservationId);
+        if (reservationOpt.isEmpty()) {
+            return ReservationResponseDTO.builder()
+                    .error("Reservation not found")
+                    .build();
+        }
+
+        Reservation reservation = reservationOpt.get();
+        reservation.setStatus(status);
+        Reservation updatedReservation = reservationRepository.save(reservation);
+
+        ReservationEvent event = new ReservationEvent("STATUS_UPDATED", updatedReservation.getReservationId().toString(), updatedReservation.getUserId().toString(), updatedReservation.getStallId().toString());
+        kafkaTemplate.send(TOPIC, event.toString());
+
+        return mapToResponseDTO(updatedReservation, "Reservation status updated successfully");
     }
 
     public boolean deleteReservation(UUID reservationId) {
@@ -181,6 +212,8 @@ public class ReservationService {
         }
 
         reservationRepository.delete(reservation);
+        ReservationEvent event = new ReservationEvent("DELETED", reservation.getReservationId().toString(), reservation.getUserId().toString(), reservation.getStallId().toString());
+        kafkaTemplate.send(TOPIC, event.toString());
         return true;
     }
 
