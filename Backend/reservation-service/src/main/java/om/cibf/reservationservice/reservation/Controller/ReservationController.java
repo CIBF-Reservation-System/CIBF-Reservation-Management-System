@@ -2,7 +2,6 @@ package om.cibf.reservationservice.reservation.Controller;
 
 import om.cibf.reservationservice.reservation.DTO.ReservationRequestDTO;
 import om.cibf.reservationservice.reservation.DTO.ReservationResponseDTO;
-import om.cibf.reservationservice.reservation.Entity.Reservation;
 import om.cibf.reservationservice.reservation.Service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,16 +73,6 @@ public class ReservationController {
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ReservationResponseDTO> cancelReservation(@PathVariable UUID id) {
         ReservationResponseDTO response = reservationService.cancelReservation(id);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    // Update reservation status
-    @PutMapping("/{id}/status")
-    public ResponseEntity<ReservationResponseDTO> updateReservationStatus(@PathVariable UUID id, @RequestBody Reservation.ReservationStatus status) {
-        ReservationResponseDTO response = reservationService.updateReservationStatus(id, status);
         if (response.getError() != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
