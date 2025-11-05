@@ -39,16 +39,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
+                        // Public endpoints - Allow all for Stage 2 testing
                         .requestMatchers(
-                                "/api/v1/admin/health",
-                                "/api-docs/**",
+                                "/admin/**",
+                                "/actuator/**",
+                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/actuator/**"
+                                "/swagger-ui.html"
                         ).permitAll()
-                        // All other admin endpoints require authentication
-                        .anyRequest().authenticated()
+                        // All other endpoints require authentication (will be enabled in later stages)
+                        .anyRequest().permitAll()
                 );
 
         return http.build();

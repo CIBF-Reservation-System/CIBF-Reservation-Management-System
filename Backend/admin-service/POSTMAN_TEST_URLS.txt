@@ -1,0 +1,73 @@
+================================================================================
+ADMIN SERVICE - STAGE 2 TESTING URLS
+Copy these EXACT URLs into Postman (Method: GET)
+================================================================================
+
+TEST 1 - Spring Boot Actuator Health (Working ✓)
+Method: GET
+URL: http://localhost:8085/cibf/admin-service/actuator/health
+
+--------------------------------------------------------------------------------
+
+TEST 2 - Custom Admin Health Check
+Method: GET
+URL: http://localhost:8085/cibf/admin-service/admin/health
+
+--------------------------------------------------------------------------------
+
+TEST 3 - Simple Test Endpoint
+Method: GET
+URL: http://localhost:8085/cibf/admin-service/admin/test
+
+Expected Response: "Admin Service is running! 🚀"
+
+--------------------------------------------------------------------------------
+
+TEST 4 - Swagger UI (Open in BROWSER, not Postman)
+URL: http://localhost:8085/cibf/admin-service/swagger-ui.html
+
+Alternative:
+URL: http://localhost:8085/cibf/admin-service/swagger-ui/index.html
+
+--------------------------------------------------------------------------------
+
+TEST 5 - OpenAPI Documentation
+Method: GET
+URL: http://localhost:8085/cibf/admin-service/v3/api-docs
+
+--------------------------------------------------------------------------------
+
+IMPORTANT NOTES:
+1. Make sure the service is RUNNING (check console logs)
+2. Use GET method for all tests above
+3. Don't type "GET http://" in Postman - just paste the URL
+4. In Postman: Select "GET" from dropdown, then paste URL in address bar
+5. The Eureka warning is NORMAL - we disabled it for Stage 2 testing
+
+================================================================================
+STAGE 2 VERIFICATION CHECKLIST
+================================================================================
+
+After testing, verify in MySQL Workbench:
+
+SQL Command:
+USE `admin-service`;
+SHOW TABLES;
+
+Expected Tables (10 tables):
+✓ admin_sessions
+✓ admin_users
+✓ audit_logs
+✓ configuration_settings
+✓ health_checks
+✓ notification_queue
+✓ reservation_analytics
+✓ stall_management_cache
+✓ system_alerts
+✓ system_health_metrics
+✓ user_management_cache
+
+If all tables exist → STAGE 2 COMPLETE ✓
+
+================================================================================
+
