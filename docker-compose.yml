@@ -1,9 +1,6 @@
 version: '3.8'
 
 services:
-  # ══════════════════════════════════════════════════════════
-  # ZOOKEEPER (Kafka coordinator) - SHARED
-  # ══════════════════════════════════════════════════════════
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
@@ -20,9 +17,6 @@ services:
       - bookfair-network
     restart: unless-stopped
 
-  # ══════════════════════════════════════════════════════════
-  # KAFKA BROKER (Message broker) - SHARED
-  # ══════════════════════════════════════════════════════════
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     hostname: kafka
@@ -55,9 +49,6 @@ services:
       timeout: 10s
       retries: 5
 
-  # ══════════════════════════════════════════════════════════
-  # KAFKA UI (Monitoring) - SHARED
-  # ══════════════════════════════════════════════════════════
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: bookfair-kafka-ui
@@ -74,17 +65,11 @@ services:
       - bookfair-network
     restart: unless-stopped
 
-# ══════════════════════════════════════════════════════════
-# SHARED NETWORK (All services connect here)
-# ══════════════════════════════════════════════════════════
 networks:
   bookfair-network:
     driver: bridge
-    name: bookfair-network  # ← IMPORTANT: Named network
+    name: bookfair-network
 
-# ══════════════════════════════════════════════════════════
-# SHARED VOLUMES
-# ══════════════════════════════════════════════════════════
 volumes:
   zookeeper-data:
   zookeeper-logs:
