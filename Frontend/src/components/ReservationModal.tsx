@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stall } from "@/components/StallCard";
+import { PaymentStep } from "@/components/PaymentStep";
+import { useBookings } from "../hooks/useBookings";
 
 const reservationSchema = z.object({
   businessName: z
@@ -57,6 +59,9 @@ export const ReservationModal = ({
   onConfirm,
 }: ReservationModalProps) => {
   const navigate = useNavigate();
+  const { addBooking } = useBookings();
+  const [step, setStep] = useState<"details" | "payment">("details");
+  const [formData, setFormData] = useState<ReservationFormData | null>(null);
 
   const {
     register,
@@ -82,17 +87,42 @@ export const ReservationModal = ({
   };
 
   const onSubmit = async (data: ReservationFormData) => {
-    const refNumber = generateReferenceNumber();
+    setFormData(data);
+    setStep("payment");
+  };
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
+  const handlePaymentComplete = async () => {
+    if (!formData) return;
+
+    const refNumber = generateReferenceNumber();
+    const bookingId = `booking-${Date.now()}`;
+
+    // Create booking object
+    const newBooking = {
+      id: bookingId,
+      ref: refNumber,
+      stalls: selectedStalls.map(s => s.label),
+      date: "March 15-17, 2026",
+      status: "Confirmed" as const,
+      businessName: formData.businessName,
+      email: formData.email,
+      phone: formData.phone,
+      totalPrice,
+      bookingDate: new Date().toISOString(),
+      paymentStatus: "Paid" as const,
+    };
+
+    // Save to localStorage
+    addBooking(newBooking);
 
     // Call parent callback
-    onConfirm({ ...data, referenceNumber: refNumber });
+    onConfirm({ ...formData, referenceNumber: refNumber });
     
-    // Close modal
+    // Close modal and reset
     onOpenChange(false);
     reset();
+    setStep("details");
+    setFormData(null);
 
     // Navigate to success page
     setTimeout(() => {
@@ -100,8 +130,8 @@ export const ReservationModal = ({
         state: {
           referenceNumber: refNumber,
           stallLabels: selectedStalls.map(s => s.label),
-          businessName: data.businessName,
-          email: data.email,
+          businessName: formData.businessName,
+          email: formData.email,
           totalPrice,
         },
       });
@@ -111,6 +141,8 @@ export const ReservationModal = ({
   const handleClose = () => {
     if (!isSubmitting) {
       reset();
+      setStep("details");
+      setFormData(null);
       onOpenChange(false);
     }
   };
@@ -119,13 +151,24 @@ export const ReservationModal = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Confirm Your Reservation</DialogTitle>
+          <DialogTitle>
+            {step === "details" ? "Confirm Your Reservation" : "Complete Payment"}
+          </DialogTitle>
           <DialogDescription>
-            Please provide your business details to complete the reservation.
+            {step === "details" 
+              ? "Please provide your business details to continue."
+              : "Complete your payment to confirm your booking."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {step === "payment" ? (
+          <PaymentStep
+            totalPrice={totalPrice}
+            onPaymentComplete={handlePaymentComplete}
+            onBack={() => setStep("details")}
+          />
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Selected Stalls Summary */}
           <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
             <h4 className="font-medium text-sm">Selected Stalls</h4>
@@ -237,20 +280,21 @@ export const ReservationModal = ({
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Processing..." : "Confirm & Get QR"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : "Continue to Payment"}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
