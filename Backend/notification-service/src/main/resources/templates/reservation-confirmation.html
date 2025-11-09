@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .qr-section {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .qr-code {
+            max-width: 250px;
+            margin: 20px auto;
+        }
+        .stall-info {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            color: #666;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1> Reservation Confirmed!</h1>
+    <p>Colombo International Bookfair 2025</p>
+</div>
+
+<div class="content">
+    <p>Dear <strong th:text="${userName}">User</strong>,</p>
+
+    <p>Thank you for reserving your stall at the Colombo International Bookfair!
+        We're excited to have <strong th:text="${businessName}">Business</strong>
+        as part of this year's exhibition.</p>
+
+    <h3> Reservation Details</h3>
+    <p><strong>Reservation ID:</strong> <span th:text="${reservationId}">RES123</span></p>
+    <p><strong>Reservation Date:</strong> <span th:text="${#temporals.format(reservationDate, 'dd-MM-yyyy HH:mm')}">Date</span></p>
+
+    <h3> Your Reserved Stalls</h3>
+    <div th:each="stall : ${stalls}" class="stall-info">
+        <p><strong>Stall Name:</strong> <span th:text="${stall.stallName}">A1</span></p>
+        <p><strong>Size:</strong> <span th:text="${stall.stallSize}">Medium</span></p>
+        <p><strong>Location:</strong> <span th:text="${stall.location}">Hall A</span></p>
+    </div>
+
+    <div class="qr-section">
+        <h3>📱 Your Entry Pass QR Code</h3>
+        <p>Please save this QR code and present it at the entrance:</p>
+        <img th:src="${qrCode}" alt="QR Code" class="qr-code">
+        <p style="font-size: 12px; color: #666;">
+            This QR code serves as your official entry pass to the exhibition premises.
+        </p>
+    </div>
+
+    <h3> Important Information</h3>
+    <ul>
+        <li>Exhibition dates: 15th - 20th March 2025</li>
+        <li>Setup time: 14th March 2025 (2:00 PM - 6:00 PM)</li>
+        <li>Daily hours: 9:00 AM - 7:00 PM</li>
+        <li>Please bring a printed copy of this QR code</li>
+    </ul>
+
+    <p>If you have any questions, please contact us at
+        <a href="mailto:info@colombobookfair.lk">info@colombobookfair.lk</a></p>
+
+    <p>We look forward to seeing you at the fair!</p>
+</div>
+
+<div class="footer">
+    <p>© 2025 Sri Lanka Book Publishers' Association</p>
+    <p>Colombo International Bookfair</p>
+</div>
+</body>
+</html>

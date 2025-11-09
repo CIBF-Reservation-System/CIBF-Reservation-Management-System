@@ -19,7 +19,7 @@ public class RegistrationEventHandler {
         try {
             log.info(" Processing registration event...");
 
-            // Parse JSON to RegistrationEvent
+            // Parse JSON to RegistrationEvent (java object)
             RegistrationEvent event = gson.fromJson(eventData, RegistrationEvent.class);
 
             // Validate event
