@@ -57,5 +57,11 @@ public class NotificationServiceClientFallback implements NotificationServiceCli
         log.error("Notification Service is unavailable - getNotificationStatistics fallback triggered");
         return ResponseEntity.status(503).body(null);
     }
+
+    @Override
+    public ResponseEntity<Object> healthCheck() {
+        log.error("Notification Service is unavailable - healthCheck fallback triggered");
+        return ResponseEntity.status(503).body(null);
+    }
 }
 

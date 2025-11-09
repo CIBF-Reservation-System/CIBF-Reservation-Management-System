@@ -82,5 +82,11 @@ public class ReservationServiceClientFallback implements ReservationServiceClien
         log.error("Reservation Service is unavailable - deleteReservation fallback triggered for reservationId: {}", reservationId);
         return ResponseEntity.status(503).build();
     }
+
+    @Override
+    public ResponseEntity<Object> healthCheck() {
+        log.error("Reservation Service is unavailable - healthCheck fallback triggered");
+        return ResponseEntity.status(503).body(null);
+    }
 }
 

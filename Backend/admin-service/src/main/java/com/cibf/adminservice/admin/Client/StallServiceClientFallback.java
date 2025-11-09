@@ -82,5 +82,11 @@ public class StallServiceClientFallback implements StallServiceClient {
         log.error("Stall Service is unavailable - searchStalls fallback triggered");
         return ResponseEntity.status(503).body(new ArrayList<>());
     }
+
+    @Override
+    public ResponseEntity<Object> healthCheck() {
+        log.error("Stall Service is unavailable - healthCheck fallback triggered");
+        return ResponseEntity.status(503).body(null);
+    }
 }
 

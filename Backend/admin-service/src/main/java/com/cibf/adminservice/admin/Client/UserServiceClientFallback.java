@@ -58,5 +58,11 @@ public class UserServiceClientFallback implements UserServiceClient {
         log.error("User Service is unavailable - getUserStatistics fallback triggered");
         return ResponseEntity.status(503).body(null);
     }
+
+    @Override
+    public ResponseEntity<Object> healthCheck() {
+        log.error("User Service is unavailable - healthCheck fallback triggered");
+        return ResponseEntity.status(503).body(null);
+    }
 }
 
