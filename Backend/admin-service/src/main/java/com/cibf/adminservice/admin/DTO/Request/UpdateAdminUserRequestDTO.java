@@ -1,3 +1,7 @@
+package com.cibf.adminservice.admin.DTO.Request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +26,4 @@ public class UpdateAdminUserRequestDTO {
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
     private String phone;
 }
-package com.cibf.adminservice.admin.DTO.Request;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 

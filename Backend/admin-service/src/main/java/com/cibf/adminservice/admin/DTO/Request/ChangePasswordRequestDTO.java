@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChangePasswordRequestDTO {
 
-    @NotBlank(message = "Current password is required")
-    private String currentPassword;
+    @NotBlank(message = "Old password is required")
+    private String oldPassword;
 
     @NotBlank(message = "New password is required")
     @Size(min = 8, max = 255, message = "New password must be between 8 and 255 characters")

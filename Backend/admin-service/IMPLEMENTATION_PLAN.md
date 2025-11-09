@@ -132,10 +132,10 @@ The Admin Service is the **centralized management and monitoring service** for t
 
 ### Inter-Service Communication:
 - **RestTemplate/WebClient** for synchronous calls to:
-  - User Service (fetch user details)
-  - Stall Service (fetch stall details)
-  - Reservation Service (fetch reservation data)
-  - Notification Service (trigger notifications)
+   - User Service (fetch user details)
+   - Stall Service (fetch stall details)
+   - Reservation Service (fetch reservation data)
+   - Notification Service (trigger notifications)
 
 ---
 
