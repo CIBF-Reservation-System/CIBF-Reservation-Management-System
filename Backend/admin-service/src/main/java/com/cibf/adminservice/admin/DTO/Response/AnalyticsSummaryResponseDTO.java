@@ -1,6 +1,7 @@
 package com.cibf.adminservice.admin.DTO.Response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,58 +12,26 @@ import java.util.Map;
  * Response DTO for analytics summary
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnalyticsSummaryResponseDTO {
 
-    private UserAnalyticsDTO users;
-    private StallAnalyticsDTO stalls;
-    private ReservationAnalyticsDTO reservations;
-    private RevenueAnalyticsDTO revenue;
+    // User metrics
+    private Long totalUsers;
+    private Long activeUsers;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UserAnalyticsDTO {
-        private Long totalUsers;
-        private Long activeUsers;
-        private Long inactiveUsers;
-        private Long newUsersToday;
-        private Long newUsersThisMonth;
-        private Map<String, Long> usersByRole;
-    }
+    // Stall metrics
+    private Long totalStalls;
+    private Long activeStalls;
+    private Long pendingStalls;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StallAnalyticsDTO {
-        private Long totalStalls;
-        private Long availableStalls;
-        private Long bookedStalls;
-        private Long pendingApproval;
-        private Map<String, Long> stallsByCategory;
-    }
+    // Reservation metrics
+    private Long totalReservations;
+    private Long activeReservations;
+    private Long pendingReservations;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ReservationAnalyticsDTO {
-        private Long totalReservations;
-        private Long activeReservations;
-        private Long completedReservations;
-        private Long cancelledReservations;
-        private Long todayReservations;
-        private Long thisMonthReservations;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RevenueAnalyticsDTO {
-        private BigDecimal totalRevenue;
-        private BigDecimal todayRevenue;
-        private BigDecimal thisMonthRevenue;
-        private BigDecimal thisYearRevenue;
-    }
+    // Revenue metrics
+    private BigDecimal totalRevenue;
 }
 
