@@ -141,7 +141,7 @@ public class AdminUserService {
                     ipAddress,
                     (String) null,
                     AlertSeverity.HIGH,
-                    ActionStatus.FAILURE,
+                    ActionStatus.FAILED,
                     "Invalid password"
             );
 

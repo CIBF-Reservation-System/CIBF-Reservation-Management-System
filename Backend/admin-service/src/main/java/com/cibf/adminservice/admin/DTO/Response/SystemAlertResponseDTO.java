@@ -1,12 +1,3 @@
-    private UUID acknowledgedBy;
-    private String acknowledgedByName;
-    private LocalDateTime acknowledgedAt;
-    private UUID resolvedBy;
-    private String resolvedByName;
-    private LocalDateTime resolvedAt;
-    private String resolutionNotes;
-    private LocalDateTime createdAt;
-}
 package com.cibf.adminservice.admin.DTO.Response;
 
 import com.cibf.adminservice.admin.Common.AlertSeverity;
@@ -35,4 +26,13 @@ public class SystemAlertResponseDTO {
     private String message;
     private String source;
     private AlertStatus status;
+    private UUID acknowledgedBy;
+    private String acknowledgedByName;
+    private LocalDateTime acknowledgedAt;
+    private UUID resolvedBy;
+    private String resolvedByName;
+    private LocalDateTime resolvedAt;
+    private String resolutionNotes;
+    private LocalDateTime createdAt;
+}
 
