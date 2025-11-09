@@ -1,14 +1,3 @@
-    private String username;
-    private String email;
-    private String fullName;
-    private String phone;
-    private String role;
-    private Boolean isActive;
-    private Boolean emailVerified;
-    private LocalDateTime lastLogin;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-}
 package com.cibf.adminservice.admin.DTO.Internal;
 
 import lombok.AllArgsConstructor;
@@ -27,4 +16,15 @@ import java.util.UUID;
 public class UserServiceDTO {
 
     private UUID userId;
+    private String username;
+    private String email;
+    private String fullName;
+    private String phone;
+    private String role;
+    private Boolean isActive;
+    private Boolean emailVerified;
+    private LocalDateTime lastLogin;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}
 
