@@ -36,7 +36,7 @@ public class NotificationConsumer {
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
 
             // 4. Offset (message position in partition)
-            @Header(KafkaHeaders.RECEIVED_OFFSET) long offset,
+            @Header(KafkaHeaders.OFFSET) long offset,
 
             // 5. Timestamp (when message was created)
             @Header(KafkaHeaders.RECEIVED_TIMESTAMP) long timestamp,
@@ -79,7 +79,7 @@ public class NotificationConsumer {
             @Payload String message,
             @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
-            @Header(KafkaHeaders.RECEIVED_OFFSET) long offset,
+            @Header(KafkaHeaders.OFFSET) long offset,
             Acknowledgment acknowledgment
     ) {
 
