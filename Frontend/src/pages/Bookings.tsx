@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,48 +25,12 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar, MapPin, Mail, Info } from "lucide-react";
 import { useState } from "react";
-
-interface Booking {
-  id: string;
-  ref: string;
-  stalls: string[];
-  date: string;
-  status: "Confirmed" | "Cancelled";
-  businessName: string;
-  email: string;
-  totalPrice: number;
-  bookingDate: string;
-}
-
-const mockBookings: Booking[] = [
-  {
-    id: "1",
-    ref: "CBF-1734567890-A1B2",
-    stalls: ["A1", "B2"],
-    date: "March 15-17, 2026",
-    status: "Confirmed",
-    businessName: "Tech Innovations Inc",
-    email: "contact@techinnovations.com",
-    totalPrice: 3000,
-    bookingDate: "2026-01-15",
-  },
-  {
-    id: "2",
-    ref: "CBF-1734567891-C3D4",
-    stalls: ["C3"],
-    date: "February 10-12, 2026",
-    status: "Cancelled",
-    businessName: "Book Lovers Store",
-    email: "info@booklovers.com",
-    totalPrice: 1500,
-    bookingDate: "2026-01-10",
-  },
-];
+import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Bookings = () => {
+  const { bookings, cancelBooking: cancelBookingInStorage } = useBookings();
   const [cancellingBooking, setCancellingBooking] = useState<Booking | null>(null);
   const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
 
   const activeBookings = bookings.filter((b) => b.status === "Confirmed");
   const pastBookings = bookings.filter((b) => b.status === "Cancelled");
@@ -81,11 +44,7 @@ const Bookings = () => {
 
   const handleCancelConfirm = () => {
     if (cancellingBooking) {
-      setBookings((prev) =>
-        prev.map((b) =>
-          b.id === cancellingBooking.id ? { ...b, status: "Cancelled" as const } : b
-        )
-      );
+      cancelBookingInStorage(cancellingBooking.id);
       toast({
         title: "Booking Cancelled",
         description: `Reservation ${cancellingBooking.ref} has been cancelled`,
@@ -330,7 +289,7 @@ const Bookings = () => {
                     Total Price
                   </label>
                   <p className="text-base font-semibold">
-                    ${detailBooking.totalPrice.toLocaleString()}
+                    LKR {detailBooking.totalPrice.toLocaleString()}
                   </p>
                 </div>
               </div>
