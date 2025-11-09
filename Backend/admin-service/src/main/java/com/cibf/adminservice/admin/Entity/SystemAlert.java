@@ -6,6 +6,7 @@ import com.cibf.adminservice.admin.Common.AlertType;
 import com.cibf.adminservice.admin.Common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 public class SystemAlert extends BaseEntity {
 

@@ -2,7 +2,6 @@ package com.cibf.adminservice.admin.Controller;
 
 import com.cibf.adminservice.admin.Common.AlertSeverity;
 import com.cibf.adminservice.admin.Common.AlertStatus;
-import com.cibf.adminservice.admin.Common.AlertType;
 import com.cibf.adminservice.admin.DTO.Request.SystemAlertRequestDTO;
 import com.cibf.adminservice.admin.DTO.Request.UpdateAlertStatusRequestDTO;
 import com.cibf.adminservice.admin.DTO.Response.ApiResponse;

@@ -35,5 +35,12 @@ public interface SystemAlertRepository extends JpaRepository<SystemAlert, Long> 
     long countByStatus(AlertStatus status);
 
     long countBySeverity(AlertSeverity severity);
+
+    // Additional methods for SystemMonitoringService
+    List<SystemAlert> findBySeverityOrderByCreatedAtDesc(AlertSeverity severity);
+
+    List<SystemAlert> findByStatusOrderByCreatedAtDesc(AlertStatus status);
+
+    List<SystemAlert> findAllByOrderByCreatedAtDesc();
 }
 
