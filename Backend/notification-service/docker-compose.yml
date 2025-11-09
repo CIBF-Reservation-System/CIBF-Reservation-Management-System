@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # MYSQL (Notification Service Database)
+  notification-mysql:
+    image: mysql:8.0
+    container_name: notification-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: notification-service-db
+      MYSQL_USER: notificationuser
+      MYSQL_PASSWORD: notificationpass
+    volumes:
+      - notification-mysql-data:/var/lib/mysql
+    networks:
+      - bookfair-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MAILHOG (Email Testing - Notification Service Only)
+  notification-mailhog:
+    image: mailhog/mailhog:latest
+    container_name: notification-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - bookfair-network  # ← Connect to SHARED network
+    restart: unless-stopped
+
+# CONNECT TO SHARED NETWORK (Created by root docker-compose)
+networks:
+  bookfair-network:
+    external: true  # ← IMPORTANT: Use existing network from root
+
+# SERVICE-SPECIFIC VOLUMES
+volumes:
+  notification-mysql-data:
