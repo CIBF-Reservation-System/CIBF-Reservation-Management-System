@@ -66,5 +66,11 @@ public interface NotificationServiceClient {
      */
     @GetMapping("/api/v1/notifications/statistics")
     ResponseEntity<Object> getNotificationStatistics();
+
+    /**
+     * Health check endpoint
+     */
+    @GetMapping("/actuator/health")
+    ResponseEntity<Object> healthCheck();
 }
 

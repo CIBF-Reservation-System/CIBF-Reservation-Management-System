@@ -1,10 +1,11 @@
 package com.cibf.adminservice.admin.DTO.Response;
 
-import com.cibf.adminservice.admin.Common.ServiceStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -13,30 +14,24 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SystemHealthResponseDTO {
 
-    private ServiceStatus overallStatus;
-    private Map<String, ServiceHealthDTO> services;
-    private DatabaseHealthDTO database;
-    private Long timestamp;
+    private String overallStatus; // HEALTHY, DEGRADED, CRITICAL
+    private LocalDateTime timestamp;
+    private Map<String, ServiceHealth> services;
+    private Long healthyServices;
+    private Long totalServices;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ServiceHealthDTO {
-        private ServiceStatus status;
-        private String url;
+    @Builder
+    public static class ServiceHealth {
+        private String status; // HEALTHY, UNHEALTHY
         private Long responseTime;
-        private String errorMessage;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DatabaseHealthDTO {
-        private ServiceStatus status;
-        private Long activeConnections;
-        private String errorMessage;
+        private String message;
+        private LocalDateTime lastChecked;
     }
 }
 

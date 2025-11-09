@@ -87,5 +87,11 @@ public interface ReservationServiceClient {
      */
     @DeleteMapping("/api/v1/reservations/{reservationId}")
     ResponseEntity<Void> deleteReservation(@PathVariable("reservationId") UUID reservationId);
+
+    /**
+     * Health check endpoint
+     */
+    @GetMapping("/actuator/health")
+    ResponseEntity<Object> healthCheck();
 }
 

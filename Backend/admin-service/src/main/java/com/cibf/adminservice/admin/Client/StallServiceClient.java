@@ -93,5 +93,11 @@ public interface StallServiceClient {
      */
     @GetMapping("/api/v1/stalls/search")
     ResponseEntity<List<StallServiceDTO>> searchStalls(@RequestParam("query") String query);
+
+    /**
+     * Health check endpoint
+     */
+    @GetMapping("/actuator/health")
+    ResponseEntity<Object> healthCheck();
 }
 

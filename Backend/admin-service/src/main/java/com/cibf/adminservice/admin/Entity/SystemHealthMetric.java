@@ -4,6 +4,7 @@ import com.cibf.adminservice.admin.Common.ServiceStatus;
 import com.cibf.adminservice.admin.Common.SystemHealthStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SystemHealthMetric {
 
     @Id

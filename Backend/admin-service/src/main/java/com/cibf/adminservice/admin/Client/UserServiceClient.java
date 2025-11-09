@@ -66,5 +66,11 @@ public interface UserServiceClient {
      */
     @GetMapping("/api/v1/users/statistics")
     ResponseEntity<Object> getUserStatistics();
+
+    /**
+     * Health check endpoint
+     */
+    @GetMapping("/actuator/health")
+    ResponseEntity<Object> healthCheck();
 }
 
