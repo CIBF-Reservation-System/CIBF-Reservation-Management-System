@@ -61,5 +61,68 @@ public class AnalyticsController {
         AnalyticsSummaryResponseDTO analytics = analyticsService.getAnalyticsSummary();
         return ResponseEntity.ok(ApiResponse.success("Analytics summary retrieved successfully", analytics));
     }
-}
 
+    /**
+     * Get user registration trends
+     * GET /cibf/admin-service/analytics/users/trends
+     */
+    @GetMapping("/users/trends")
+    @Operation(summary = "Get user registration trends", description = "Retrieve user registration trends for past N days")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getUserTrends(
+            @RequestParam(defaultValue = "30") int days) {
+        log.info("GET /analytics/users/trends?days={} - Fetching user trends", days);
+        Map<String, Object> trends = analyticsService.getUserRegistrationTrends(days);
+        return ResponseEntity.ok(ApiResponse.success("User registration trends retrieved successfully", trends));
+    }
+
+    /**
+     * Get stall statistics (aggregated)
+     * GET /cibf/admin-service/analytics/stalls/statistics
+     */
+    @GetMapping("/stalls/statistics")
+    @Operation(summary = "Get stall statistics", description = "Retrieve aggregated stall statistics")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getStallStatistics() {
+        log.info("GET /analytics/stalls/statistics - Fetching stall statistics");
+        Map<String, Object> stats = analyticsService.getStallStatistics();
+        return ResponseEntity.ok(ApiResponse.success("Stall statistics retrieved successfully", stats));
+    }
+
+    /**
+     * Get reservation statistics (aggregated)
+     * GET /cibf/admin-service/analytics/reservations/statistics
+     */
+    @GetMapping("/reservations/statistics")
+    @Operation(summary = "Get reservation statistics", description = "Retrieve aggregated reservation statistics")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getReservationStatistics() {
+        log.info("GET /analytics/reservations/statistics - Fetching reservation statistics");
+        Map<String, Object> stats = analyticsService.getReservationStatistics();
+        return ResponseEntity.ok(ApiResponse.success("Reservation statistics retrieved successfully", stats));
+    }
+
+    /**
+     * Get revenue summary
+     * GET /cibf/admin-service/analytics/revenue/summary
+     */
+    @GetMapping("/revenue/summary")
+    @Operation(summary = "Get revenue summary", description = "Retrieve summary of revenue analytics")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getRevenueSummary() {
+        log.info("GET /analytics/revenue/summary - Fetching revenue summary");
+        Map<String, Object> revenue = analyticsService.getRevenueSummary();
+        return ResponseEntity.ok(ApiResponse.success("Revenue summary retrieved successfully", revenue));
+    }
+
+    /**
+     * Generate custom report
+     * GET /cibf/admin-service/analytics/reports/custom
+     */
+    @GetMapping("/reports/custom")
+    @Operation(summary = "Generate custom report", description = "Generate a custom analytics report based on parameters")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getCustomReport(
+            @RequestParam(defaultValue = "GENERAL") String type,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate) {
+        log.info("GET /analytics/reports/custom?type={}&fromDate={}&toDate={} - Generating custom report", type, fromDate, toDate);
+        Map<String, Object> report = analyticsService.generateCustomReport(type, fromDate, toDate);
+        return ResponseEntity.ok(ApiResponse.success("Custom report generated successfully", report));
+    }
+}

@@ -120,6 +120,75 @@ public class AnalyticsService {
         return statistics;
     }
 
+    public Map<String, Object> getUserRegistrationTrends(int days) {
+        log.info("Fetching user registration trends for last {} days", days);
+        Map<String, Object> result = new HashMap<>();
+        try {
+            Object userStats = userManagementService.getUserStatistics();
+            result.put("days", days);
+            result.put("data", userStats);
+        } catch (Exception e) {
+            log.warn("User trends unavailable: {}", e.getMessage());
+            result.put("data", List.of());
+        }
+        return result;
+    }
+
+    public Map<String, Object> getStallStatistics() {
+        log.info("Fetching stall statistics (aggregated)");
+        Map<String, Object> result = new HashMap<>();
+        try {
+            result.put("data", stallManagementService.getStallStatistics());
+        } catch (Exception e) {
+            log.warn("Stall statistics unavailable: {}", e.getMessage());
+            result.put("data", Map.of());
+        }
+        return result;
+    }
+
+    public Map<String, Object> getReservationStatistics() {
+        log.info("Fetching reservation statistics (aggregated)");
+        Map<String, Object> result = new HashMap<>();
+        try {
+            result.put("data", reservationManagementService.getReservationStatistics());
+        } catch (Exception e) {
+            log.warn("Reservation statistics unavailable: {}", e.getMessage());
+            result.put("data", Map.of());
+        }
+        return result;
+    }
+
+    public Map<String, Object> getRevenueSummary() {
+        log.info("Calculating revenue summary from reservations");
+        Map<String, Object> result = new HashMap<>();
+        try {
+            List<com.cibf.adminservice.admin.DTO.Internal.ReservationServiceDTO> reservations = safeGetAllReservations();
+            java.math.BigDecimal total = reservations.stream()
+                    .map(r -> r.getTotalAmount() == null ? java.math.BigDecimal.ZERO : r.getTotalAmount())
+                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+            long count = reservations.size();
+            result.put("totalRevenue", total);
+            result.put("reservationsCount", count);
+        } catch (Exception e) {
+            log.warn("Revenue summary unavailable: {}", e.getMessage());
+            result.put("totalRevenue", java.math.BigDecimal.ZERO);
+            result.put("reservationsCount", 0);
+        }
+        return result;
+    }
+
+    public Map<String, Object> generateCustomReport(String type, String fromDate, String toDate) {
+        log.info("Generating custom report: type={}, fromDate={}, toDate={}", type, fromDate, toDate);
+        Map<String, Object> report = new HashMap<>();
+        report.put("type", type);
+        report.put("fromDate", fromDate);
+        report.put("toDate", toDate);
+        // For now, combine summary + statistics
+        report.put("summary", getAnalyticsSummary());
+        report.put("statistics", getDetailedStatistics());
+        return report;
+    }
+
     // Safe methods that handle exceptions gracefully
     private List<UserServiceDTO> safeGetAllUsers() {
         try {
@@ -148,4 +217,3 @@ public class AnalyticsService {
         }
     }
 }
-
