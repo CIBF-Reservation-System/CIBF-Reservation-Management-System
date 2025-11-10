@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class AdminUserController {
      */
     @PostMapping("/register")
     @Operation(summary = "Register new admin user", description = "Create a new admin user account (SUPER_ADMIN only)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> registerAdmin(
             @Valid @RequestBody CreateAdminUserRequestDTO requestDTO,
             @RequestHeader("X-Admin-Id") UUID createdBy
@@ -118,6 +120,7 @@ public class AdminUserController {
      */
     @GetMapping
     @Operation(summary = "Get all admin users", description = "Retrieve all admin users (SUPER_ADMIN only)")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     public ResponseEntity<ApiResponse<List<AdminUserResponseDTO>>> getAllAdmins() {
         log.info("GET /admins - Fetching all admin users");
         List<AdminUserResponseDTO> response = adminUserService.getAllAdmins();
@@ -170,6 +173,7 @@ public class AdminUserController {
      */
     @PutMapping("/{id}/status")
     @Operation(summary = "Update admin status", description = "Enable or disable admin user account (SUPER_ADMIN only)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> updateAdminStatus(
             @PathVariable @Parameter(description = "Admin user ID") UUID id,
             @RequestParam @Parameter(description = "Active status (true/false)") Boolean isActive,
@@ -189,6 +193,7 @@ public class AdminUserController {
      */
     @PutMapping("/{id}/role")
     @Operation(summary = "Update admin role", description = "Update admin user role (SUPER_ADMIN only)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> updateAdminRole(
             @PathVariable @Parameter(description = "Admin user ID") UUID id,
             @RequestParam @Parameter(description = "New admin role") AdminRole role,
@@ -205,6 +210,7 @@ public class AdminUserController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete admin user", description = "Delete admin user account (SUPER_ADMIN only)")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteAdmin(
             @PathVariable @Parameter(description = "Admin user ID") UUID id,
             @RequestHeader("X-Admin-Id") UUID deletedBy
@@ -225,4 +231,3 @@ public class AdminUserController {
         return request.getRemoteAddr();
     }
 }
-
