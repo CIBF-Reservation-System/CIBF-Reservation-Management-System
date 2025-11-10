@@ -1,7 +1,7 @@
-package om.cibf.reservationservice.reservation.Repository;
+package com.cibf.reservationservice.reservation.Repository;
 
 
-import om.cibf.reservationservice.reservation.Entity.Reservation;
+import com.cibf.reservationservice.reservation.Entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,16 +1,14 @@
-package om.cibf.reservationservice.reservation.service;
+package com.cibf.reservationservice.reservation.Service;
 
 import jakarta.transaction.Transactional;
-import om.cibf.reservationservice.reservation.Entity.Reservation;
-import om.cibf.reservationservice.reservation.Repository.ReservationRepo;
-import om.cibf.reservationservice.reservation.dto.ReservationDTO;
+import com.cibf.reservationservice.reservation.Entity.Reservation;
+import com.cibf.reservationservice.reservation.Repository.ReservationRepo;
+import com.cibf.reservationservice.reservation.DTO.ReservationDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
-import java.security.PrivateKey;
 import java.util.List;
 
 @Service

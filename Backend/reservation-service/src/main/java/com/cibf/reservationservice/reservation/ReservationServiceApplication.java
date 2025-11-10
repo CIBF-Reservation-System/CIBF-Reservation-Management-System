@@ -1,4 +1,4 @@
-package om.cibf.reservationservice.reservation;
+package com.cibf.reservationservice.reservation;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;

@@ -1,11 +1,8 @@
-package om.cibf.reservationservice.reservation.Controller;
+package com.cibf.reservationservice.reservation.Controller;
 
 
-import om.cibf.reservationservice.reservation.Entity.Reservation;
-import om.cibf.reservationservice.reservation.common.ReservationResponse;
-import om.cibf.reservationservice.reservation.dto.ReservationDTO;
-import om.cibf.reservationservice.reservation.dto.ReservationEventDTO;
-import om.cibf.reservationservice.reservation.service.ReservationService;
+import com.cibf.reservationservice.reservation.DTO.ReservationDTO;
+import com.cibf.reservationservice.reservation.Service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

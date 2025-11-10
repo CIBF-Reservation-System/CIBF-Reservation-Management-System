@@ -1,4 +1,4 @@
-package om.cibf.reservationservice.reservation.Entity;
+package com.cibf.reservationservice.reservation.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;

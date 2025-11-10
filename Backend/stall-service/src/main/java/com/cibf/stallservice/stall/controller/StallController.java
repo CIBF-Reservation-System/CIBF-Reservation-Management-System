@@ -4,9 +4,13 @@ package com.cibf.stallservice.stall.controller;
 import com.cibf.stallservice.stall.dto.StallDTO;
 import com.cibf.stallservice.stall.service.StallService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -27,8 +31,20 @@ public class StallController {
     }
 
     @GetMapping("/stall/{stallId}")
-    public StallDTO getStallsById(@PathVariable Integer stallId) {
-        return stallService.getStallsById(stallId);
+//    public StallDTO getStallsById(@PathVariable Integer stallId) {
+//
+//        return stallService.getStallsById(stallId);
+//
+//    }
+    public ResponseEntity<?> getStallById(@PathVariable Integer stallId) {
+        StallDTO stallDTO = stallService.getStallsById(stallId);
+
+        if (stallDTO == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Stall with stallId " + stallId + " not found"));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Stall found", "stall", stallDTO));
     }
 
     @PostMapping("/addstall")
@@ -37,8 +53,18 @@ public class StallController {
     }
 
     @PutMapping("/updatestall/{stallId}")
-    public StallDTO updateStall(@RequestBody StallDTO stallId) {
-        return stallService.updateStall(stallId);
+    public ResponseEntity<?> updateStall(@PathVariable int stallId, @RequestBody StallDTO stallDTO) {
+         try {
+             StallDTO updatedStall = stallService.updateStall(stallId, stallDTO);
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Stall updated successfully");
+             response.put("stall", updatedStall);
+             return ResponseEntity.ok(response);
+         } catch (RuntimeException e) {
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", e.getMessage());
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+         }
     }
 
     @DeleteMapping("/deletestall/{stallId}")

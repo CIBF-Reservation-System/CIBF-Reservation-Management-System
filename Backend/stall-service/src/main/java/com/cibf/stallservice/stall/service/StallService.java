@@ -30,18 +30,22 @@ public class StallService {
         return stallDTO;
     }
 
-    public StallDTO updateStall(StallDTO stallDTO) {
-        stallRepo.save(modelMapper.map(stallDTO, Stall.class));
-        return stallDTO;
-    }
-
     public String deleteStalls(Integer stallId) {
+        Stall existingStall = stallRepo.getStallById(stallId);
+        if (existingStall == null) {
+            return "No stall id " + stallId + "  to delete";
+        }
+
         stallRepo.deleteById(stallId);
-        return "Stall deleted";
+        return "Stall deleted successfully";
     }
 
     public StallDTO getStallsById(Integer stallId) {
         Stall stall = stallRepo.getStallById(stallId);
+
+        if (stall == null) {
+            return null;
+        }
         return modelMapper.map(stall, StallDTO.class);
     }
     public List<StallDTO> getAvailableStalls() {
@@ -53,5 +57,23 @@ public class StallService {
         List<Stall> reservedStalls = stallRepo.getReservedStalls();
         return modelMapper.map(reservedStalls, new TypeToken<List<StallDTO>>(){}.getType());
     }
+
+    public StallDTO updateStall(int stallId, StallDTO stallDTO) {
+        Stall existingStall = stallRepo.getStallById(stallId);
+
+        if (existingStall == null) {
+            throw new RuntimeException("Stall with stallId " + stallId + " not found");
+        }
+
+        existingStall.setStallName(stallDTO.getStallName());
+        existingStall.setStallDescription(stallDTO.getStallDescription());
+        existingStall.setLocation(stallDTO.getLocation());
+        existingStall.setStallSize(stallDTO.getStallSize());
+
+        stallRepo.save(existingStall);
+        return modelMapper.map(existingStall, StallDTO.class);
+    }
+
+
 
 }
