@@ -1,8 +1,8 @@
 package lk.bookfair.notification.service;
 
 import jakarta.mail.internet.MimeMessage;
-import lk.bookfair.notification.model.ReservationEvent;
-import lk.bookfair.notification.model.RegistrationEvent;
+import lk.bookfair.notification.model.event.ReservationEvent;
+import lk.bookfair.notification.model.event.RegistrationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
