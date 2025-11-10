@@ -19,6 +19,7 @@ import com.cibf.adminservice.admin.Util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -223,6 +224,17 @@ public class AdminUserService {
         log.info("Found {} admin users", admins.size());
 
         return admins.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all admin users (paginated)
+     */
+    public List<AdminUserResponseDTO> getAllAdminsPaged(int page, int size) {
+        log.info("Fetching admins page={}, size={}", page, size);
+        return adminUserRepository.findAll(PageRequest.of(page, size))
+                .stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -476,4 +488,3 @@ public class AdminUserService {
         return modelMapper.map(adminUser, AdminUserResponseDTO.class);
     }
 }
-

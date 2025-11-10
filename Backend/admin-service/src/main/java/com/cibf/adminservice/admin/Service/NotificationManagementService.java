@@ -1,13 +1,19 @@
 package com.cibf.adminservice.admin.Service;
 
 import com.cibf.adminservice.admin.Client.NotificationServiceClient;
+import com.cibf.adminservice.admin.Common.NotificationStatus;
+import com.cibf.adminservice.admin.Entity.NotificationQueue;
 import com.cibf.adminservice.admin.DTO.Internal.NotificationServiceDTO;
+import com.cibf.adminservice.admin.Repository.NotificationQueueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Service for sending notifications via notification-service
@@ -18,6 +24,7 @@ import java.util.List;
 public class NotificationManagementService {
 
     private final NotificationServiceClient notificationServiceClient;
+    private final NotificationQueueRepository notificationQueueRepository;
 
     /**
      * Send single notification
@@ -142,5 +149,58 @@ public class NotificationManagementService {
             return null;
         }
     }
-}
 
+    public NotificationQueue enqueueEmail(String email, String subject, String message, UUID createdBy) {
+        NotificationQueue nq = new NotificationQueue();
+        nq.setNotificationType(com.cibf.adminservice.admin.Common.NotificationType.EMAIL);
+        nq.setRecipientType(com.cibf.adminservice.admin.Common.RecipientType.USER);
+        nq.setRecipientEmail(email);
+        nq.setSubject(subject);
+        nq.setMessage(message);
+        nq.setPriority(com.cibf.adminservice.admin.Common.NotificationPriority.MEDIUM);
+        nq.setStatus(NotificationStatus.PENDING);
+        nq.setScheduledAt(LocalDateTime.now());
+        nq.setCreatedBy(createdBy);
+        return notificationQueueRepository.save(nq);
+    }
+
+    public int processPendingQueue(int batchSize) {
+        var pending = notificationQueueRepository.findByStatusAndScheduledAtBefore(NotificationStatus.PENDING, LocalDateTime.now());
+        int processed = 0;
+        for (NotificationQueue item : pending.stream().limit(batchSize).toList()) {
+            try {
+                sendEmailNotification(item.getRecipientEmail(), item.getSubject(), item.getMessage());
+                item.setStatus(NotificationStatus.SENT);
+                item.setSentAt(LocalDateTime.now());
+                item.setErrorMessage(null);
+                notificationQueueRepository.save(item);
+                processed++;
+            } catch (Exception e) {
+                item.setRetryCount(item.getRetryCount() + 1);
+                item.setErrorMessage(e.getMessage());
+                if (item.getRetryCount() >= item.getMaxRetries()) {
+                    item.setStatus(NotificationStatus.FAILED);
+                } else {
+                    item.setStatus(NotificationStatus.PENDING); // will retry later
+                }
+                notificationQueueRepository.save(item);
+            }
+        }
+        return processed;
+    }
+
+    public Object getQueueStatusSummary() {
+        long pending = notificationQueueRepository.countByStatus(NotificationStatus.PENDING);
+        long sent = notificationQueueRepository.countByStatus(NotificationStatus.SENT);
+        long failed = notificationQueueRepository.countByStatus(NotificationStatus.FAILED);
+        return java.util.Map.of(
+                "pending", pending,
+                "sent", sent,
+                "failed", failed
+        );
+    }
+
+    public List<NotificationQueue> getQueuePage(int page, int size) {
+        return notificationQueueRepository.findAll(PageRequest.of(page, size)).getContent();
+    }
+}

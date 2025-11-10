@@ -9,6 +9,7 @@ import com.cibf.adminservice.admin.DTO.Response.AdminLoginResponseDTO;
 import com.cibf.adminservice.admin.DTO.Response.AdminUserResponseDTO;
 import com.cibf.adminservice.admin.DTO.Response.ApiResponse;
 import com.cibf.adminservice.admin.Service.AdminUserService;
+import com.cibf.adminservice.admin.Security.SecurityContextUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,10 +46,10 @@ public class AdminUserController {
     @Operation(summary = "Register new admin user", description = "Create a new admin user account (SUPER_ADMIN only)")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> registerAdmin(
-            @Valid @RequestBody CreateAdminUserRequestDTO requestDTO,
-            @RequestHeader("X-Admin-Id") UUID createdBy
+            @Valid @RequestBody CreateAdminUserRequestDTO requestDTO
     ) {
-        log.info("POST /admins/register - Registering new admin: {}", requestDTO.getUsername());
+        UUID createdBy = SecurityContextUtil.getCurrentAdminId();
+        log.info("POST /admins/register - Registering new admin: {} by {}", requestDTO.getUsername(), createdBy);
         AdminUserResponseDTO response = adminUserService.registerAdmin(requestDTO, createdBy);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Admin user registered successfully", response));
@@ -76,9 +77,8 @@ public class AdminUserController {
      */
     @GetMapping("/profile")
     @Operation(summary = "Get current admin profile", description = "Retrieve current logged-in admin profile")
-    public ResponseEntity<ApiResponse<AdminUserResponseDTO>> getProfile(
-            @RequestHeader("X-Admin-Id") UUID adminId
-    ) {
+    public ResponseEntity<ApiResponse<AdminUserResponseDTO>> getProfile() {
+        UUID adminId = SecurityContextUtil.getCurrentAdminId();
         log.info("GET /admins/profile - Fetching profile for admin: {}", adminId);
         AdminUserResponseDTO response = adminUserService.getAdminById(adminId);
         return ResponseEntity.ok(ApiResponse.success("Profile retrieved successfully", response));
@@ -91,9 +91,9 @@ public class AdminUserController {
     @PutMapping("/profile")
     @Operation(summary = "Update admin profile", description = "Update current admin user profile")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> updateProfile(
-            @RequestHeader("X-Admin-Id") UUID adminId,
             @Valid @RequestBody UpdateAdminUserRequestDTO requestDTO
     ) {
+        UUID adminId = SecurityContextUtil.getCurrentAdminId();
         log.info("PUT /admins/profile - Updating profile for admin: {}", adminId);
         AdminUserResponseDTO response = adminUserService.updateAdmin(adminId, requestDTO, adminId);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", response));
@@ -106,9 +106,9 @@ public class AdminUserController {
     @PutMapping("/change-password")
     @Operation(summary = "Change password", description = "Change current admin user password")
     public ResponseEntity<ApiResponse<Void>> changePassword(
-            @RequestHeader("X-Admin-Id") UUID adminId,
             @Valid @RequestBody ChangePasswordRequestDTO requestDTO
     ) {
+        UUID adminId = SecurityContextUtil.getCurrentAdminId();
         log.info("PUT /admins/change-password - Changing password for admin: {}", adminId);
         adminUserService.changePassword(adminId, requestDTO, adminId);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
@@ -121,9 +121,12 @@ public class AdminUserController {
     @GetMapping
     @Operation(summary = "Get all admin users", description = "Retrieve all admin users (SUPER_ADMIN only)")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-    public ResponseEntity<ApiResponse<List<AdminUserResponseDTO>>> getAllAdmins() {
-        log.info("GET /admins - Fetching all admin users");
-        List<AdminUserResponseDTO> response = adminUserService.getAllAdmins();
+    public ResponseEntity<ApiResponse<List<AdminUserResponseDTO>>> getAllAdmins(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        log.info("GET /admins - Fetching all admin users page={}, size={}", page, size);
+        List<AdminUserResponseDTO> response = adminUserService.getAllAdminsPaged(page, size);
         return ResponseEntity.ok(ApiResponse.success("Admin users retrieved successfully", response));
     }
 
@@ -176,10 +179,10 @@ public class AdminUserController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> updateAdminStatus(
             @PathVariable @Parameter(description = "Admin user ID") UUID id,
-            @RequestParam @Parameter(description = "Active status (true/false)") Boolean isActive,
-            @RequestHeader("X-Admin-Id") UUID modifiedBy
+            @RequestParam @Parameter(description = "Active status (true/false)") Boolean isActive
     ) {
-        log.info("PUT /admins/{}/status - Updating admin status to: {}", id, isActive);
+        UUID modifiedBy = SecurityContextUtil.getCurrentAdminId();
+        log.info("PUT /admins/{}/status - Updating admin status to: {} by {}", id, isActive, modifiedBy);
         AdminUserResponseDTO response = adminUserService.updateAdminStatus(id, isActive, modifiedBy);
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Admin account %s successfully", isActive ? "enabled" : "disabled"),
@@ -196,10 +199,10 @@ public class AdminUserController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<AdminUserResponseDTO>> updateAdminRole(
             @PathVariable @Parameter(description = "Admin user ID") UUID id,
-            @RequestParam @Parameter(description = "New admin role") AdminRole role,
-            @RequestHeader("X-Admin-Id") UUID modifiedBy
+            @RequestParam @Parameter(description = "New admin role") AdminRole role
     ) {
-        log.info("PUT /admins/{}/role - Updating admin role to: {}", id, role);
+        UUID modifiedBy = SecurityContextUtil.getCurrentAdminId();
+        log.info("PUT /admins/{}/role - Updating admin role to: {} by {}", id, role, modifiedBy);
         AdminUserResponseDTO response = adminUserService.updateAdminRole(id, role, modifiedBy);
         return ResponseEntity.ok(ApiResponse.success("Admin role updated successfully", response));
     }
@@ -212,10 +215,10 @@ public class AdminUserController {
     @Operation(summary = "Delete admin user", description = "Delete admin user account (SUPER_ADMIN only)")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteAdmin(
-            @PathVariable @Parameter(description = "Admin user ID") UUID id,
-            @RequestHeader("X-Admin-Id") UUID deletedBy
+            @PathVariable @Parameter(description = "Admin user ID") UUID id
     ) {
-        log.info("DELETE /admins/{} - Deleting admin user", id);
+        UUID deletedBy = SecurityContextUtil.getCurrentAdminId();
+        log.info("DELETE /admins/{} - Deleting admin user by {}", id, deletedBy);
         adminUserService.deleteAdmin(id, deletedBy);
         return ResponseEntity.ok(ApiResponse.success("Admin user deleted successfully", null));
     }
