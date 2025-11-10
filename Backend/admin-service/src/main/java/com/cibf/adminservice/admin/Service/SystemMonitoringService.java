@@ -7,6 +7,8 @@ import com.cibf.adminservice.admin.Client.UserServiceClient;
 import com.cibf.adminservice.admin.Common.AlertSeverity;
 import com.cibf.adminservice.admin.Common.AlertStatus;
 import com.cibf.adminservice.admin.Common.AlertType;
+import com.cibf.adminservice.admin.Common.ServiceStatus;
+import com.cibf.adminservice.admin.Common.SystemHealthStatus;
 import com.cibf.adminservice.admin.DTO.Response.SystemHealthResponseDTO;
 import com.cibf.adminservice.admin.Entity.SystemAlert;
 import com.cibf.adminservice.admin.Entity.SystemHealthMetric;
@@ -324,6 +326,46 @@ public class SystemMonitoringService {
 
     public SystemHealthResponseDTO.ServiceHealth getDatabaseHealthOnly() {
         return checkDatabaseHealth();
+    }
+
+    public SystemHealthMetric snapshotSystemHealth() {
+        var health = getSystemHealth();
+        SystemHealthMetric metric = SystemHealthMetric.builder()
+                .userServiceStatus(toServiceStatus(health.getServices().get("user-service")))
+                .userServiceResponseTime(toResponseTime(health.getServices().get("user-service")))
+                .stallServiceStatus(toServiceStatus(health.getServices().get("stall-service")))
+                .stallServiceResponseTime(toResponseTime(health.getServices().get("stall-service")))
+                .reservationServiceStatus(toServiceStatus(health.getServices().get("reservation-service")))
+                .reservationServiceResponseTime(toResponseTime(health.getServices().get("reservation-service")))
+                .notificationServiceStatus(toServiceStatus(health.getServices().get("notification-service")))
+                .notificationServiceResponseTime(toResponseTime(health.getServices().get("notification-service")))
+                .databaseStatus(toServiceStatus(health.getServices().get("admin-service-database")))
+                .databaseResponseTime(toResponseTime(health.getServices().get("admin-service-database")))
+                .overallStatus(toOverallStatus(health.getOverallStatus()))
+                .cpuUsagePercent(java.math.BigDecimal.ZERO)
+                .memoryUsagePercent(java.math.BigDecimal.ZERO)
+                .diskUsagePercent(java.math.BigDecimal.ZERO)
+                .activeConnections(0)
+                .build();
+        return healthMetricRepository.save(metric);
+    }
+
+    private ServiceStatus toServiceStatus(SystemHealthResponseDTO.ServiceHealth sh) {
+        if (sh == null) return ServiceStatus.UNKNOWN;
+        return switch (sh.getStatus()) {
+            case "HEALTHY" -> ServiceStatus.UP; case "DEGRADED" -> ServiceStatus.DEGRADED; case "UNHEALTHY" -> ServiceStatus.DOWN; default -> ServiceStatus.UNKNOWN; };
+    }
+
+    private Integer toResponseTime(SystemHealthResponseDTO.ServiceHealth sh) {
+        if (sh == null) return null; return sh.getResponseTime() != null ? sh.getResponseTime().intValue() : null;
+    }
+
+    private SystemHealthStatus toOverallStatus(String status) {
+        return switch (status) { case "HEALTHY" -> SystemHealthStatus.HEALTHY; case "DEGRADED" -> SystemHealthStatus.DEGRADED; default -> SystemHealthStatus.UNHEALTHY; };
+    }
+
+    public List<SystemHealthMetric> getLatestMetrics(int limit) {
+        return healthMetricRepository.findTop10ByOrderByCheckTimestampDesc().stream().limit(limit).toList();
     }
 
     @FunctionalInterface
