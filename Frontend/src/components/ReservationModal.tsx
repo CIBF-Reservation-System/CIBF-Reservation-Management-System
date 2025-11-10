@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import confetti from "canvas-confetti";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stall } from "@/components/StallCard";
-import { CheckCircle2 } from "lucide-react";
+import { PaymentStep } from "@/components/PaymentStep";
+import { useBookings } from "../hooks/useBookings";
 
 const reservationSchema = z.object({
   businessName: z
@@ -57,8 +58,10 @@ export const ReservationModal = ({
   totalPrice,
   onConfirm,
 }: ReservationModalProps) => {
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [referenceNumber, setReferenceNumber] = useState("");
+  const navigate = useNavigate();
+  const { addBooking } = useBookings();
+  const [step, setStep] = useState<"details" | "payment">("details");
+  const [formData, setFormData] = useState<ReservationFormData | null>(null);
 
   const {
     register,
@@ -83,103 +86,89 @@ export const ReservationModal = ({
     return `${prefix}-${timestamp}-${random}`;
   };
 
-  const triggerConfetti = () => {
-    const duration = 2000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    const randomInRange = (min: number, max: number) =>
-      Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-      });
-    }, 250);
+  const onSubmit = async (data: ReservationFormData) => {
+    setFormData(data);
+    setStep("payment");
   };
 
-  const onSubmit = async (data: ReservationFormData) => {
+  const handlePaymentComplete = async () => {
+    if (!formData) return;
+
     const refNumber = generateReferenceNumber();
-    setReferenceNumber(refNumber);
+    const bookingId = `booking-${Date.now()}`;
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Create booking object
+    const newBooking = {
+      id: bookingId,
+      ref: refNumber,
+      stalls: selectedStalls.map(s => s.label),
+      date: "March 15-17, 2026",
+      status: "Confirmed" as const,
+      businessName: formData.businessName,
+      email: formData.email,
+      phone: formData.phone,
+      totalPrice,
+      bookingDate: new Date().toISOString(),
+      paymentStatus: "Paid" as const,
+    };
 
-    setIsSuccess(true);
-    triggerConfetti();
+    // Save to localStorage
+    addBooking(newBooking);
 
-    // Call parent callback with full data
+    // Call parent callback
+    onConfirm({ ...formData, referenceNumber: refNumber });
+    
+    // Close modal and reset
+    onOpenChange(false);
+    reset();
+    setStep("details");
+    setFormData(null);
+
+    // Navigate to success page
     setTimeout(() => {
-      onConfirm({ ...data, referenceNumber: refNumber });
-      reset();
-      setIsSuccess(false);
-      onOpenChange(false);
-    }, 3000);
+      navigate("/confirmation", {
+        state: {
+          referenceNumber: refNumber,
+          stallLabels: selectedStalls.map(s => s.label),
+          businessName: formData.businessName,
+          email: formData.email,
+          totalPrice,
+        },
+      });
+    }, 100);
   };
 
   const handleClose = () => {
-    if (!isSubmitting && !isSuccess) {
+    if (!isSubmitting) {
       reset();
-      setIsSuccess(false);
+      setStep("details");
+      setFormData(null);
       onOpenChange(false);
     }
   };
-
-  if (isSuccess) {
-    return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
-            <div className="rounded-full bg-primary/10 p-4">
-              <CheckCircle2 className="h-12 w-12 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-semibold mb-2">
-                Reservation Confirmed!
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Your booking reference is:
-              </p>
-              <p className="text-xl font-mono font-bold text-primary">
-                {referenceNumber}
-              </p>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              We've sent a confirmation email with your QR pass. You'll be
-              redirected to My Bookings shortly.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Confirm Your Reservation</DialogTitle>
+          <DialogTitle>
+            {step === "details" ? "Confirm Your Reservation" : "Complete Payment"}
+          </DialogTitle>
           <DialogDescription>
-            Please provide your business details to complete the reservation.
+            {step === "details" 
+              ? "Please provide your business details to continue."
+              : "Complete your payment to confirm your booking."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {step === "payment" ? (
+          <PaymentStep
+            totalPrice={totalPrice}
+            onPaymentComplete={handlePaymentComplete}
+            onBack={() => setStep("details")}
+          />
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Selected Stalls Summary */}
           <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
             <h4 className="font-medium text-sm">Selected Stalls</h4>
@@ -291,20 +280,21 @@ export const ReservationModal = ({
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Processing..." : "Confirm & Get QR"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : "Continue to Payment"}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );

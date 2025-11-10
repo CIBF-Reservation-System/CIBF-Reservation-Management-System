@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,20 @@ const Auth = () => {
     confirmPassword: "",
   });
   const navigate = useNavigate();
+
+  // Theme (dark/light) state
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    if (isDark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +54,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Theme toggle button (fixed to viewport top-right so it's always visible) */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button
+          onClick={() => setIsDark((s) => !s)}
+          aria-label="Toggle theme"
+          className="h-10 px-3"
+          variant="outline"
+        >
+          {isDark ? "Light Mode" : "Dark Mode"}
+        </Button>
+      </div>
+
       <Header />
       <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center">
         <Card className="w-full max-w-md">
