@@ -124,5 +124,23 @@ public class NotificationManagementService {
             return null;
         }
     }
+
+    /**
+     * Get notification queue status
+     */
+    public Object getNotificationQueueStatus() {
+        log.info("Fetching notification queue status");
+        try {
+            ResponseEntity<Object> response = notificationServiceClient.getNotificationQueueStatus();
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully fetched notification queue status");
+                return response.getBody();
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("Error fetching notification queue status: {}", e.getMessage());
+            return null;
+        }
+    }
 }
 
