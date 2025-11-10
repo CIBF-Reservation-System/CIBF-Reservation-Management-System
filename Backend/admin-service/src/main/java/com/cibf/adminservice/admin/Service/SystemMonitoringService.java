@@ -312,9 +312,22 @@ public class SystemMonitoringService {
         return new ArrayList<>();
     }
 
+    public Map<String, SystemHealthResponseDTO.ServiceHealth> getAllServicesHealth() {
+        Map<String, SystemHealthResponseDTO.ServiceHealth> services = new HashMap<>();
+        services.put("user-service", checkServiceHealth("user-service", this::checkUserService));
+        services.put("stall-service", checkServiceHealth("stall-service", this::checkStallService));
+        services.put("reservation-service", checkServiceHealth("reservation-service", this::checkReservationService));
+        services.put("notification-service", checkServiceHealth("notification-service", this::checkNotificationService));
+        services.put("admin-service-database", checkDatabaseHealth());
+        return services;
+    }
+
+    public SystemHealthResponseDTO.ServiceHealth getDatabaseHealthOnly() {
+        return checkDatabaseHealth();
+    }
+
     @FunctionalInterface
     private interface ServiceChecker {
         boolean check();
     }
 }
-

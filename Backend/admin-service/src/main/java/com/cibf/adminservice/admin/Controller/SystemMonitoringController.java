@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -193,5 +194,28 @@ public class SystemMonitoringController {
         SystemHealthResponseDTO health = systemMonitoringService.getSystemHealth();
         return ResponseEntity.ok(ApiResponse.success("Health check completed", health));
     }
-}
 
+    /**
+     * Get health status of all individual services (without overall aggregation)
+     * GET /cibf/admin-service/monitoring/services
+     */
+    @GetMapping("/services")
+    @Operation(summary = "Get all services health", description = "Retrieve health status for each registered microservice")
+    public ResponseEntity<ApiResponse<Map<String, SystemHealthResponseDTO.ServiceHealth>>> getServicesHealth() {
+        log.info("GET /monitoring/services - Fetching individual services health");
+        Map<String, SystemHealthResponseDTO.ServiceHealth> services = systemMonitoringService.getAllServicesHealth();
+        return ResponseEntity.ok(ApiResponse.success("Services health retrieved successfully", services));
+    }
+
+    /**
+     * Get database health only
+     * GET /cibf/admin-service/monitoring/database
+     */
+    @GetMapping("/database")
+    @Operation(summary = "Get database health", description = "Check admin-service database connection health")
+    public ResponseEntity<ApiResponse<SystemHealthResponseDTO.ServiceHealth>> getDatabaseHealth() {
+        log.info("GET /monitoring/database - Fetching database health");
+        SystemHealthResponseDTO.ServiceHealth dbHealth = systemMonitoringService.getDatabaseHealthOnly();
+        return ResponseEntity.ok(ApiResponse.success("Database health retrieved successfully", dbHealth));
+    }
+}
