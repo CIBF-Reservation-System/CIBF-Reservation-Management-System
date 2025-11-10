@@ -38,5 +38,4 @@ src/main/resources/application.properties
 **/admin-service-schema.sql
 DATABASE_SETUP_GUIDE.md
 IMPLEMENTATION_PLAN.md
-
-
+ADMIN_SERVICE_STATUS.md

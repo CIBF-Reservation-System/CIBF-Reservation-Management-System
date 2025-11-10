@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,6 +63,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     null,
                     List.of(authority)
             );
+            var details = new HashMap<String, Object>();
+            details.put("adminId", adminId.toString());
+            details.put("role", role);
+            authentication.setDetails(details);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
@@ -70,4 +75,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-

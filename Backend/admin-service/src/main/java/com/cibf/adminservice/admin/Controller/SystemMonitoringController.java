@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -104,6 +105,7 @@ public class SystemMonitoringController {
      * POST /cibf/admin-service/monitoring/alerts
      */
     @PostMapping("/alerts")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     @Operation(summary = "Create system alert", description = "Create a new system alert manually")
     public ResponseEntity<ApiResponse<SystemAlert>> createAlert(
             @Valid @RequestBody SystemAlertRequestDTO request) {
@@ -125,6 +127,7 @@ public class SystemMonitoringController {
      * PUT /cibf/admin-service/monitoring/alerts/{alertId}/acknowledge
      */
     @PutMapping("/alerts/{alertId}/acknowledge")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     @Operation(summary = "Acknowledge alert", description = "Acknowledge a system alert")
     public ResponseEntity<ApiResponse<SystemAlert>> acknowledgeAlert(
             @PathVariable @Parameter(description = "Alert ID") Long alertId,
@@ -140,6 +143,7 @@ public class SystemMonitoringController {
      * PUT /cibf/admin-service/monitoring/alerts/{alertId}/resolve
      */
     @PutMapping("/alerts/{alertId}/resolve")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "Resolve alert", description = "Mark an alert as resolved with resolution notes")
     public ResponseEntity<ApiResponse<SystemAlert>> resolveAlert(
             @PathVariable @Parameter(description = "Alert ID") Long alertId,
