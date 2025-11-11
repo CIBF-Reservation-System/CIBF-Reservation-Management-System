@@ -9,8 +9,13 @@ import Footer from "@/components/Footer";
 import { Search } from "lucide-react";
 import { StallCard, Stall, StallSize } from "@/components/StallCard";
 import { ReservationModal } from "@/components/ReservationModal";
+
 import { VenueMap } from "@/components/VenueMap";
 import { stallService } from "@/services/stallService"; // import your service
+
+import { GoogleMapsVenue } from "@/components/GoogleMapsVenue";
+
+
 
 const Reserve = () => {
   const navigate = useNavigate();
@@ -216,6 +221,8 @@ const Reserve = () => {
           highlightedArea={selectedArea}
         />
       </div>
+
+
 
       <Footer />
 
