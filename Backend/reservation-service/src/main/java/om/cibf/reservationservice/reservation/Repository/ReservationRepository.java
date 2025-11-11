@@ -18,7 +18,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     List<Reservation> findByStatus(Reservation.ReservationStatus status);
 
     @Query("SELECT r FROM Reservation r WHERE r.stallId = :stallId AND " +
-           "((r.startTime <= :endTime AND r.endTime >= :startTime)) AND " +
+           "(r.reservationDate >= DATE(:startTime) AND r.reservationDate <= DATE(:endTime)) AND " +
            "r.status IN ('PENDING', 'CONFIRMED')")
     List<Reservation> findConflictingReservations(@Param("stallId") UUID stallId,
                                                  @Param("startTime") LocalDateTime startTime,

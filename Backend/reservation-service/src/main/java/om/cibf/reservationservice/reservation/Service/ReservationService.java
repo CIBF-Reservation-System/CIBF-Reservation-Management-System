@@ -7,6 +7,7 @@ import om.cibf.reservationservice.reservation.Repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,29 +29,15 @@ public class ReservationService {
             // For now, we'll assume the stall exists and is available
             // In a real implementation, you'd call the stall service API
 
-            // Check for conflicting reservations
-            List<Reservation> conflicts = reservationRepository.findConflictingReservations(
-                    request.getStallId(),
-                    request.getStartTime(),
-                    request.getEndTime()
-            );
-
-            if (!conflicts.isEmpty()) {
-                return ReservationResponseDTO.builder()
-                        .error("Stall is already reserved for the selected time period")
-                        .build();
-            }
-
             // Create reservation
             Reservation reservation = Reservation.builder()
                     .userId(request.getUserId())
                     .stallId(request.getStallId())
-                    .eventName(request.getEventName())
-                    .reservationDate(request.getReservationDate())
-                    .startTime(request.getStartTime())
-                    .endTime(request.getEndTime())
+                    .businessName(request.getBusinessName())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .reservationDate(LocalDateTime.now())
                     .status(Reservation.ReservationStatus.PENDING)
-                    .notes(request.getNotes())
                     .build();
 
             Reservation savedReservation = reservationRepository.save(reservation);
@@ -103,36 +90,11 @@ public class ReservationService {
                     .build();
         }
 
-        // Check for conflicts if time changed
-        if (!request.getStartTime().equals(reservation.getStartTime()) ||
-            !request.getEndTime().equals(reservation.getEndTime()) ||
-            !request.getStallId().equals(reservation.getStallId())) {
-
-            List<Reservation> conflicts = reservationRepository.findConflictingReservations(
-                    request.getStallId(),
-                    request.getStartTime(),
-                    request.getEndTime()
-            );
-
-            // Remove current reservation from conflicts check
-            conflicts = conflicts.stream()
-                    .filter(conflict -> !conflict.getReservationId().equals(reservationId))
-                    .collect(Collectors.toList());
-
-            if (!conflicts.isEmpty()) {
-                return ReservationResponseDTO.builder()
-                        .error("Stall is already reserved for the selected time period")
-                        .build();
-            }
-        }
-
         // Update reservation
         reservation.setStallId(request.getStallId());
-        reservation.setEventName(request.getEventName());
-        reservation.setReservationDate(request.getReservationDate());
-        reservation.setStartTime(request.getStartTime());
-        reservation.setEndTime(request.getEndTime());
-        reservation.setNotes(request.getNotes());
+        reservation.setBusinessName(request.getBusinessName());
+        reservation.setEmail(request.getEmail());
+        reservation.setPhoneNumber(request.getPhoneNumber());
 
         Reservation updatedReservation = reservationRepository.save(reservation);
         return mapToResponseDTO(updatedReservation, "Reservation updated successfully");
@@ -189,12 +151,11 @@ public class ReservationService {
                 .reservationId(reservation.getReservationId())
                 .userId(reservation.getUserId())
                 .stallId(reservation.getStallId())
-                .eventName(reservation.getEventName())
+                .businessName(reservation.getBusinessName())
+                .email(reservation.getEmail())
+                .phoneNumber(reservation.getPhoneNumber())
                 .reservationDate(reservation.getReservationDate())
-                .startTime(reservation.getStartTime())
-                .endTime(reservation.getEndTime())
                 .status(reservation.getStatus())
-                .notes(reservation.getNotes())
                 .createdAt(reservation.getCreatedAt())
                 .updatedAt(reservation.getUpdatedAt())
                 .message(message)

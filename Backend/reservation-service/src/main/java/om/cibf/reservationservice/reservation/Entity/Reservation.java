@@ -28,24 +28,21 @@ public class Reservation {
     @Column(name = "stall_id", nullable = false)
     private UUID stallId;
 
-    @Column(name = "event_name", nullable = false)
-    private String eventName;
+    @Column(name = "business_name", nullable = false)
+    private String businessName;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
     @Column(name = "reservation_date", nullable = false)
     private LocalDateTime reservationDate;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
-
-    @Column(name = "notes")
-    private String notes;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

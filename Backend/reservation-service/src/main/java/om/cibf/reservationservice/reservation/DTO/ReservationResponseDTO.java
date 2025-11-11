@@ -18,12 +18,11 @@ public class ReservationResponseDTO {
     private UUID reservationId;
     private UUID userId;
     private UUID stallId;
-    private String eventName;
+    private String businessName;
+    private String email;
+    private String phoneNumber;
     private LocalDateTime reservationDate;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
     private Reservation.ReservationStatus status;
-    private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String message;

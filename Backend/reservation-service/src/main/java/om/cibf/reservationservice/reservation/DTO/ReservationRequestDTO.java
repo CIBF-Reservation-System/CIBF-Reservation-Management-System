@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,9 +15,7 @@ public class ReservationRequestDTO {
 
     private UUID userId;
     private UUID stallId;
-    private String eventName;
-    private LocalDateTime reservationDate;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private String notes;
+    private String businessName;
+    private String email;
+    private String phoneNumber;
 }
