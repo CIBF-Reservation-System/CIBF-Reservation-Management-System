@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,35 +26,41 @@ public class ReservationService {
         this.eventProducer = eventProducer;
     }
 
-    public ReservationResponseDTO createReservation(ReservationRequestDTO request) {
-        try {
-            // Note: Stall validation should be done via stall service
-            // For now, we'll assume the stall exists and is available
-            // In a real implementation, you'd call the stall service API
+    public List<ReservationResponseDTO> createReservations(List<ReservationRequestDTO> requests) {
+        List<Reservation> savedReservations = new ArrayList<>();
+        List<ReservationResponseDTO> responses = new ArrayList<>();
 
-            // Create reservation
-            Reservation reservation = Reservation.builder()
-                    .userId(request.getUserId())
-                    .stallId(request.getStallId())
-                    .businessName(request.getBusinessName())
-                    .email(request.getEmail())
-                    .phoneNumber(request.getPhoneNumber())
-                    .reservationDate(LocalDateTime.now())
-                    .status(Reservation.ReservationStatus.PENDING)
-                    .build();
+        for (ReservationRequestDTO request : requests) {
+            try {
+                // Create reservation
+                Reservation reservation = Reservation.builder()
+                        .userId(request.getUserId())
+                        .stallId(request.getStallId())
+                        .businessName(request.getBusinessName())
+                        .email(request.getEmail())
+                        .phoneNumber(request.getPhoneNumber())
+                        .reservationDate(LocalDateTime.now())
+                        .status(Reservation.ReservationStatus.PENDING)
+                        .build();
 
-            Reservation savedReservation = reservationRepository.save(reservation);
+                Reservation saved = reservationRepository.save(reservation);
+                savedReservations.add(saved);
 
-            // Publish Kafka event
-            eventProducer.publishReservationCreated(savedReservation);
+                responses.add(mapToResponseDTO(saved, "Reservation created successfully"));
 
-            return mapToResponseDTO(savedReservation, "Reservation created successfully");
-
-        } catch (Exception e) {
-            return ReservationResponseDTO.builder()
-                    .error("Failed to create reservation: " + e.getMessage())
-                    .build();
+            } catch (Exception e) {
+                responses.add(ReservationResponseDTO.builder()
+                        .error("Failed to create reservation: " + e.getMessage())
+                        .build());
+            }
         }
+
+        // Publish Kafka event with the entire array
+        if (!savedReservations.isEmpty()) {
+            eventProducer.publishReservationsCreated(savedReservations);
+        }
+
+        return responses;
     }
 
     public List<ReservationResponseDTO> getAllReservations() {
@@ -133,10 +140,12 @@ public class ReservationService {
         return mapToResponseDTO(updatedReservation, "Reservation cancelled successfully");
     }
 
-    public boolean deleteReservation(UUID reservationId) {
+    public ReservationResponseDTO deleteReservation(UUID reservationId) {
         Optional<Reservation> reservationOpt = reservationRepository.findById(reservationId);
         if (reservationOpt.isEmpty()) {
-            return false;
+            return ReservationResponseDTO.builder()
+                    .error("Reservation not found")
+                    .build();
         }
 
         Reservation reservation = reservationOpt.get();
@@ -144,11 +153,16 @@ public class ReservationService {
         // Only allow deletion of cancelled or pending reservations
         if (reservation.getStatus() == Reservation.ReservationStatus.CONFIRMED ||
             reservation.getStatus() == Reservation.ReservationStatus.COMPLETED) {
-            return false;
+            return ReservationResponseDTO.builder()
+                    .error("Cannot delete reservation")
+                    .build();
         }
 
         reservationRepository.delete(reservation);
-        return true;
+        return ReservationResponseDTO.builder()
+                .message("Reservation deleted successfully")
+                .error(null)
+                .build();
     }
 
     private ReservationResponseDTO mapToResponseDTO(Reservation reservation, String message) {

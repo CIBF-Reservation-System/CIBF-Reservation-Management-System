@@ -26,13 +26,15 @@ public class ReservationController {
     }
 
     // Create a new reservation
-    @PostMapping("/create")
-    public ResponseEntity<ReservationResponseDTO> createReservation(@RequestBody ReservationRequestDTO request) {
-        ReservationResponseDTO response = reservationService.createReservation(request);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    @PostMapping("")
+    public ResponseEntity<List<ReservationResponseDTO>> createReservation(@RequestBody List<ReservationRequestDTO> requests) {
+        List<ReservationResponseDTO> responses = reservationService.createReservations(requests);
+        // Check if any have errors
+        boolean hasErrors = responses.stream().anyMatch(r -> r.getError() != null);
+        if (hasErrors) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responses);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
     // Get all reservations
@@ -81,11 +83,11 @@ public class ReservationController {
 
     // Delete a reservation
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReservation(@PathVariable UUID id) {
-        boolean deleted = reservationService.deleteReservation(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete reservation");
+    public ResponseEntity<ReservationResponseDTO> deleteReservation(@PathVariable UUID id) {
+        ReservationResponseDTO response = reservationService.deleteReservation(id);
+        if (response.getError() != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }
