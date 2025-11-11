@@ -7,12 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface StallRepo extends JpaRepository<Stall,Integer> {
-    @Query(value = "SELECT * FROM stall WHERE stall_id = ?1", nativeQuery = true)
-    Stall getStallById(Integer stallId);
-
+public interface StallRepo extends JpaRepository<Stall,UUID> {
+    @Query(value = "SELECT * FROM stalls WHERE id = ?1", nativeQuery = true)
+    Stall getStallById(UUID stallId);
     @Query(value = "SELECT * FROM stall WHERE availability = 1", nativeQuery = true)
     List<Stall> getAvailableStalls();
 
