@@ -93,7 +93,7 @@ response:
 request:
     DELETE http://localhost:8083/api/v1/reservations/{reservationId}
 response:
-    200 OK
+    204 OK
     body:
         {
             "message": "Reservation deleted successfully",
