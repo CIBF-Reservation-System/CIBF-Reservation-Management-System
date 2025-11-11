@@ -16,11 +16,14 @@ export const authService = {
 
     console.log(response);
 
-    // Store role locally (optional)
-    const role = response.data.user?.role;
-    if (role) localStorage.setItem('role', role);
+    // Extract user details
+    const user = response.data.user;
 
-    return { user: response.data.user };
+    // Store userId and role locally
+    if (user?.role) localStorage.setItem('role', user.role);
+    if (user?.userId) localStorage.setItem('userId', user.userId);
+
+    return { user };
   },
 
   async logout() {

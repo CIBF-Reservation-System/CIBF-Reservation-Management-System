@@ -18,6 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Stall } from "@/components/StallCard";
 import { PaymentStep } from "@/components/PaymentStep";
 import { useBookings } from "../hooks/useBookings";
+import { reservationService } from "@/services/reservationService";
+
 
 const reservationSchema = z.object({
   businessName: z
@@ -91,52 +93,122 @@ export const ReservationModal = ({
     setStep("payment");
   };
 
-  const handlePaymentComplete = async () => {
-    if (!formData) return;
+  // const handlePaymentComplete = async () => {
+  //   if (!formData) return;
 
-    const refNumber = generateReferenceNumber();
-    const bookingId = `booking-${Date.now()}`;
+  //   const refNumber = generateReferenceNumber();
+  //   const bookingId = `booking-${Date.now()}`;
 
-    // Create booking object
-    const newBooking = {
-      id: bookingId,
-      ref: refNumber,
-      stalls: selectedStalls.map(s => s.label),
-      date: "March 15-17, 2026",
-      status: "Confirmed" as const,
-      businessName: formData.businessName,
-      email: formData.email,
-      phone: formData.phone,
-      totalPrice,
-      bookingDate: new Date().toISOString(),
-      paymentStatus: "Paid" as const,
-    };
+  //   // Create booking object
+  //   const newBooking = {
+  //     id: bookingId,
+  //     ref: refNumber,
+  //     stalls: selectedStalls.map(s => s.label),
+  //     date: "March 15-17, 2026",
+  //     status: "Confirmed" as const,
+  //     businessName: formData.businessName,
+  //     email: formData.email,
+  //     phone: formData.phone,
+  //     totalPrice,
+  //     bookingDate: new Date().toISOString(),
+  //     paymentStatus: "Paid" as const,
+  //   };
 
-    // Save to localStorage
-    addBooking(newBooking);
+  //   // Save to localStorage
+  //   addBooking(newBooking);
 
-    // Call parent callback
-    onConfirm({ ...formData, referenceNumber: refNumber });
+  //   // Call parent callback
+  //   onConfirm({ ...formData, referenceNumber: refNumber });
     
-    // Close modal and reset
+  //   // Close modal and reset
+  //   onOpenChange(false);
+  //   reset();
+  //   setStep("details");
+  //   setFormData(null);
+
+  //   // Navigate to success page
+  //   setTimeout(() => {
+  //     navigate("/confirmation", {
+  //       state: {
+  //         referenceNumber: refNumber,
+  //         stallLabels: selectedStalls.map(s => s.label),
+  //         businessName: formData.businessName,
+  //         email: formData.email,
+  //         totalPrice,
+  //       },
+  //     });
+  //   }, 100);
+  // };
+  const handlePaymentComplete = async () => {
+  if (!formData) return;
+
+  console.log(formData)
+
+  const refNumber = generateReferenceNumber();
+  const bookingId = `booking-${Date.now()}`;
+
+  const userId = localStorage.getItem("userId");
+  
+  if (!userId) {
+    console.error("User ID not found in localStorage");
+    return;
+  }
+
+  // Build the reservation payload (array of reservations)
+  const reservationRequests = selectedStalls.map((stall) => ({
+    userId: userId,
+    stallId: stall.id,
+    businessName: formData.businessName,
+    email: formData.email,
+    phoneNumber: formData.phone,
+  }));
+
+  try {
+    // 🔹 Send reservation request to backend
+    await reservationService.makeReservation(reservationRequests);
+
+
+    console.log(reservationRequests)
+    // 🔹 Create a local booking record (for UI/localStorage)
+    // const newBooking = {
+    //   id: bookingId,
+    //   ref: refNumber,
+    //   stalls: selectedStalls.map((s) => s.label),
+    //   date: "March 15-17, 2026",
+    //   status: "Confirmed" as const,
+    //   businessName: formData.businessName,
+    //   email: formData.email,
+    //   phone: formData.phone,
+    //   totalPrice,
+    //   bookingDate: new Date().toISOString(),
+    //   paymentStatus: "Paid" as const,
+    // };
+
+   // addBooking(newBooking);
+   // onConfirm({ ...formData, referenceNumber: refNumber });
+
+    // Reset modal and navigate
     onOpenChange(false);
     reset();
     setStep("details");
     setFormData(null);
 
-    // Navigate to success page
     setTimeout(() => {
       navigate("/confirmation", {
         state: {
           referenceNumber: refNumber,
-          stallLabels: selectedStalls.map(s => s.label),
+          stallLabels: selectedStalls.map((s) => s.label),
           businessName: formData.businessName,
           email: formData.email,
           totalPrice,
         },
       });
     }, 100);
-  };
+  } catch (error) {
+    console.error("Reservation failed:", error);
+    alert("Failed to make reservation. Please try again.");
+  }
+};
 
   const handleClose = () => {
     if (!isSubmitting) {

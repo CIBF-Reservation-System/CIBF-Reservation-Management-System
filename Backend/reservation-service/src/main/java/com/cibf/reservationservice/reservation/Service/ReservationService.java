@@ -31,7 +31,7 @@ public class ReservationService {
     private final ReservationEventProducer eventProducer;
     private final RestTemplate restTemplate;
 
-    private static final String STALL_SERVICE_BASE_URL = "http://host.docker.internal:8086/api/v1/stall/updateavailability";
+    private static final String STALL_SERVICE_BASE_URL = "http://localhost:8086/api/v1/stall/updateavailability";
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository, ReservationEventProducer eventProducer, RestTemplate restTemplate) {
@@ -81,12 +81,12 @@ public class ReservationService {
 
     private boolean cancelStallBooking(String stallId) {
         try {
-            String url = "http://host.docker.internal:8086/api/v1/stall/cancelreservation/" + stallId;
+            String url = "http://localhost:8086/api/v1/stall/cancelBooking/" + stallId;
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, null, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 String responseBody = response.getBody();
-                if (responseBody != null && responseBody.contains("stall is now available")) {
+                if (responseBody != null && responseBody.contains("Stall is available")) {
                     return true; // Successfully made available
                 }
             }

@@ -59,7 +59,7 @@ const Auth = () => {
     if (role === 'ROLE_ORGANIZER') {
       navigate('/organizer');
     } else if (role === 'ROLE_PUBLISHER') {
-      navigate('/publisher'); // Make sure you have this route
+      navigate('/'); // Make sure you have this route
     } else {
       navigate('/'); // default fallback
     }

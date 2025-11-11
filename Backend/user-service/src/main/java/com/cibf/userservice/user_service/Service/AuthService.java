@@ -67,6 +67,7 @@ public class AuthService {
 
         // Build the user response
         LoginUserDTO loginUserDto = LoginUserDTO.builder()
+                .userId(user.getUserId())
                 .email(user.getEmail())
                 .role(user.getRole().getRoleName())
                 .build();
@@ -116,6 +117,7 @@ public class AuthService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             return new UserResponseDTO(
+                    user.getUserId(),
                     user.getEmail(),
                     user.getContactPerson(),
                     user.getBusinessName(),
