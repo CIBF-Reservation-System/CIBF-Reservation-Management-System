@@ -23,7 +23,10 @@ public interface UserServiceClient {
      * Get all users from user service
      */
     @GetMapping("/api/v1/users")
-    ResponseEntity<List<UserServiceDTO>> getAllUsers();
+    ResponseEntity<List<UserServiceDTO>> getAllUsers(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    );
 
     /**
      * Get user by ID

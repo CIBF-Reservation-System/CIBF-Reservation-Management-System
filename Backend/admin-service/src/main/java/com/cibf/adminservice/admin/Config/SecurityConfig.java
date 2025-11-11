@@ -36,7 +36,7 @@ public class SecurityConfig {
      * - Disable CSRF for stateless JWT authentication
      * - Configure CORS
      * - Set session management to stateless
-     * - Define public and protected endpoints
+     * - All endpoints open for now (security handled by API Gateway and user-service JWT)
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,15 +45,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/admins/login",
-                                "/admins/register",
-                                "/actuator/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()  // Admin service will validate JWT from user-service
                 )
                 .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
