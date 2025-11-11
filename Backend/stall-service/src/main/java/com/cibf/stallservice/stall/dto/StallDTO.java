@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StallDTO {
-    private int id;
     private int stallId;
     private String stallName;
     private String stallDescription;

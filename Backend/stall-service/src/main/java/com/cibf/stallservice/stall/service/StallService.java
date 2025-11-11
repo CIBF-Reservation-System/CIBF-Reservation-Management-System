@@ -26,7 +26,7 @@ public class StallService {
     }
 
     public StallDTO saveStall(StallDTO stallDTO) {
-        stallRepo.save(modelMapper.map(stallDTO, Stall.class));
+        Stall saveStall= stallRepo.save(modelMapper.map(stallDTO, Stall.class));
         return stallDTO;
     }
 

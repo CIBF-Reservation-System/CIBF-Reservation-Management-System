@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class Stall {
     @Id
-    private int id;
     private int stallId;
     private String stallName;
     private String stallDescription;
