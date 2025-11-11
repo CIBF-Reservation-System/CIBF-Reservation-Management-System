@@ -1,4 +1,5 @@
-package lk.bookfair.notification;
+//package lk.bookfair.notification;
+package com.cibf.notificationservice.notification;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
