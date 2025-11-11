@@ -61,26 +61,6 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
     }
 
-    // Update an existing reservation
-    @PutMapping("/{id}")
-    public ResponseEntity<ReservationResponseDTO> updateReservation(@PathVariable UUID id, @RequestBody ReservationRequestDTO request) {
-        ReservationResponseDTO response = reservationService.updateReservation(id, request);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    // Cancel a reservation
-    @PatchMapping("/{id}/cancel")
-    public ResponseEntity<ReservationResponseDTO> cancelReservation(@PathVariable UUID id) {
-        ReservationResponseDTO response = reservationService.cancelReservation(id);
-        if (response.getError() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        return ResponseEntity.ok(response);
-    }
-
     // Delete a reservation
     @DeleteMapping("/{id}")
     public ResponseEntity<ReservationResponseDTO> deleteReservation(@PathVariable UUID id) {
