@@ -18,9 +18,11 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationEventProducer eventProducer;
 
-    public ReservationService(ReservationRepository reservationRepository) {
+    public ReservationService(ReservationRepository reservationRepository, ReservationEventProducer eventProducer) {
         this.reservationRepository = reservationRepository;
+        this.eventProducer = eventProducer;
     }
 
     public ReservationResponseDTO createReservation(ReservationRequestDTO request) {
@@ -41,6 +43,9 @@ public class ReservationService {
                     .build();
 
             Reservation savedReservation = reservationRepository.save(reservation);
+
+            // Publish Kafka event
+            eventProducer.publishReservationCreated(savedReservation);
 
             return mapToResponseDTO(savedReservation, "Reservation created successfully");
 
