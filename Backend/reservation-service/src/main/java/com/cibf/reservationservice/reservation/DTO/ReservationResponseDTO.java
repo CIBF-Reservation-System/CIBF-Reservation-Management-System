@@ -1,10 +1,10 @@
-package om.cibf.reservationservice.reservation.DTO;
+package com.cibf.reservationservice.reservation.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import om.cibf.reservationservice.reservation.Entity.Reservation;
+import com.cibf.reservationservice.reservation.Entity.Reservation;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
