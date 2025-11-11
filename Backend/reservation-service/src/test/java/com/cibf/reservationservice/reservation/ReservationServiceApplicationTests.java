@@ -1,4 +1,4 @@
-package om.cibf.reservationservice.reservation;
+package com.cibf.reservationservice.reservation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
