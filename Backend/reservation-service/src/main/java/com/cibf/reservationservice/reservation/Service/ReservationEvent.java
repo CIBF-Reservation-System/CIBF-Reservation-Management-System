@@ -1,20 +1,15 @@
-package om.cibf.reservationservice.reservation.DTO;
+package com.cibf.reservationservice.reservation.Service;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import om.cibf.reservationservice.reservation.Entity.Reservation;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ReservationResponseDTO {
-
+public class ReservationEvent {
+    private String eventType;
     private UUID reservationId;
     private UUID userId;
     private UUID stallId;
@@ -22,9 +17,7 @@ public class ReservationResponseDTO {
     private String email;
     private String phoneNumber;
     private LocalDateTime reservationDate;
-    private Reservation.ReservationStatus status;
+    private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String message;
-    private String error;
 }

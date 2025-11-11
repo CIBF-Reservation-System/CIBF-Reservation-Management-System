@@ -1,4 +1,4 @@
-package om.cibf.reservationservice.reservation.DTO;
+package com.cibf.reservationservice.reservation.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
