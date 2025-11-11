@@ -1,10 +1,40 @@
-HELP.md
+
+
 target/
-.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Maven logs
+maven-wrapper.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+# User-specific IntelliJ files
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+
 .apt_generated
 .classpath
 .factorypath
@@ -12,22 +42,165 @@ target/
 .settings
 .springBeans
 .sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+.vscode/
+*.code-workspace
+.history/
 
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+
+# Spring Boot DevTools
+.spring-boot-devtools.properties
+
+# Spring Boot Actuator sensitive endpoints
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+logs/
+*.log
+log/
+*.log.*
+spring.log
+application.log
+
+*.db
+*.sqlite
+*.sqlite3
+h2/
+data/
+
+/volumes/
+/data/
+/mysql-data/
+/kafka-data/
+/zookeeper-data/
+
+kafka-logs/
+zookeeper/
+/kafka/
+/zookeeper/
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+node_modules/
+package-lock.json
+yarn.lock
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*~.nib
+*.bak
+*.cache
+.cache/
+
+# Application properties with sensitive data
+application-secret.properties
+application-prod.yml
+secrets.yml
+secrets.properties
+
+# Certificate files
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+
+.coverage
+htmlcov/
+*.cover
+coverage/
+.pytest_cache/
+
+
+
+docs/_build/
+docs/.build/
+
+
+
+*.backup
+*.old
+*.orig
+*-backup
+*-old
+
+
+qr-codes/
+generated-qr/
+*.qr
+
+*.html.backup
+
+# TODO files (personal notes)
+TODO.txt
+NOTES.txt
+personal-notes.md
+
+# Test data
+test-data/
+sample-data/

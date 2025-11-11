@@ -20,21 +20,13 @@ public class JWTService {
     public JWTService(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
-//    public JWTService() {
-//        try {
-//            SecretKey k = KeyGenerator.getInstance("HmacSHA256").generateKey();
-//            this.secretKey = Keys.hmacShaKeyFor(k.getEncoded());
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
     // Generate JWT token (15 minutes validity)
     public String getJWTToken(String email, String roleName , String businessName) {
         return Jwts.builder()
                 .subject(email)
                 .claim("role", roleName)
-                .claim("businessName", "Doe Enterprises")
+                .claim("businessName", businessName)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                 .signWith(secretKey)
@@ -46,7 +38,6 @@ public class JWTService {
         return getClaims(token).getSubject();
 
     }
-
     // Validate token: checks if username matches and token is not expired
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -66,4 +57,5 @@ public class JWTService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
 }

@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Admin Service Specific ###
+# Use paths relative to this .gitignore (Backend/admin-service/)
+src/main/resources/application.properties
+**/admin-service-schema.sql
+DATABASE_SETUP_GUIDE.md
+IMPLEMENTATION_PLAN.md
+ADMIN_SERVICE_STATUS.md
+ADMIN_SERVICE_SUMMARY_LOCAL.md
+ADMIN_SERVICE_POSTMAN_GUIDE_LOCAL.md

@@ -1,0 +1,28 @@
+package com.cibf.adminservice.admin.Common;
+
+/**
+ * Audit log action types
+ */
+public enum LogAction {
+    USER_CREATED,
+    USER_UPDATED,
+    USER_DELETED,
+    USER_STATUS_CHANGED,
+    STALL_APPROVED,
+    STALL_REJECTED,
+    STALL_UPDATED,
+    STALL_DELETED,
+    RESERVATION_CANCELLED,
+    RESERVATION_UPDATED,
+    RESERVATION_DELETED,
+    ADMIN_CREATED,
+    ADMIN_UPDATED,
+    ADMIN_DELETED,
+    ADMIN_LOGIN,
+    SYSTEM_CONFIG_CHANGED,
+    NOTIFICATION_SENT,
+    ALERT_CREATED,
+    REPORT_GENERATED,
+    OTHER
+}
+

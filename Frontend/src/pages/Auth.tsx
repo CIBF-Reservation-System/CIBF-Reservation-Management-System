@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     businessName: "",
     email: "",
@@ -17,38 +17,82 @@ const Auth = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
+  // Theme
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored === "dark";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    if (isDark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+
+  // Handle login form submit
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!formData.email || !formData.password) {
+    toast?.error?.('Please fill in all fields');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    await login(formData.email, formData.password);
+
+    if (toast?.success) toast.success('Logged in successfully!');
+
+    // Get role from localStorage
+    const role = localStorage.getItem('role');
+
+    // Navigate according to role
+    if (role === 'ROLE_ORGANIZER') {
+      navigate('/organizer');
+    } else if (role === 'ROLE_PUBLISHER') {
+      navigate('/publisher'); // Make sure you have this route
+    } else {
+      navigate('/'); // default fallback
     }
 
-    toast({
-      title: isLogin ? "Login successful" : "Registration successful",
-      description: isLogin ? "Welcome back!" : "Your account has been created",
-    });
-    
-    navigate("/reserve");
-  };
+  } catch (err: any) {
+    if (toast?.error) toast.error(err.message || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      <div className="fixed top-4 right-4 z-50">
+        <Button
+          onClick={() => setIsDark((s) => !s)}
+          aria-label="Toggle theme"
+          className="h-10 px-3"
+          variant="outline"
+        >
+          {isDark ? "Light Mode" : "Dark Mode"}
+        </Button>
+      </div>
+
       <Header />
       <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">{isLogin ? "Login" : "Register"}</CardTitle>
             <CardDescription>
-              {isLogin 
-                ? "Enter your credentials to access your account" 
+              {isLogin
+                ? "Enter your credentials to access your account"
                 : "Create an account to reserve your stall"}
             </CardDescription>
           </CardHeader>
@@ -65,7 +109,7 @@ const Auth = () => {
                   />
                 </div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email *</Label>
                 <Input
@@ -114,8 +158,8 @@ const Auth = () => {
                 </div>
               )}
 
-              <Button type="submit" className="w-full">
-                {isLogin ? "Login" : "Register"}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (isLogin ? "Logging in..." : "Registering...") : isLogin ? "Login" : "Register"}
               </Button>
 
               <p className="text-sm text-center text-muted-foreground">
