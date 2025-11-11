@@ -83,4 +83,9 @@ public class StallController {
         return stallService.updateAvailability(stallId);
     }
 
+    @PutMapping("/cancelBooking/{stallId}")
+    public String cancelBookingById(@PathVariable UUID stallId) {
+        return stallService.cancelBooking(stallId);
+    }
+
 }

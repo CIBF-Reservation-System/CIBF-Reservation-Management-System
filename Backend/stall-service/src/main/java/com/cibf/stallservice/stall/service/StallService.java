@@ -94,6 +94,19 @@ public class StallService {
         return "Invalid availability status for stall ID ";
     }
 
+    public String cancelBooking(UUID stallId) {
+        Stall existingStall = stallRepo.getStallById(stallId);
+
+        if (existingStall == null) {
+            return "No stall found with ID ";
+        }
+
+        existingStall.setAvailability(1);
+        stallRepo.save(existingStall);
+
+        return "Stall is available";
+
+    }
 
 
 }
