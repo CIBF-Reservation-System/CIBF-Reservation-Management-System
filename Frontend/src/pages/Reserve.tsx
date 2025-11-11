@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import { Search } from "lucide-react";
 import { StallCard, Stall, StallSize } from "@/components/StallCard";
 import { ReservationModal } from "@/components/ReservationModal";
-import { VenueMap } from "@/components/VenueMap";
+import { GoogleMapsVenue } from "@/components/GoogleMapsVenue";
 
 const mockStalls: Stall[] = [
   { id: "1", label: "A1", size: "Small", price: 15000, available: true, area: "Hall A" },
@@ -79,7 +79,14 @@ const Reserve = () => {
         <h1 className="text-4xl font-bold mb-2">Reserve Your Stall</h1>
         <p className="text-muted-foreground mb-8">Select up to 3 stalls for your booth</p>
 
-        
+        {/* Venue Map */}
+        <div className="mb-8">
+          <GoogleMapsVenue 
+            stalls={mockStalls}
+            selectedStalls={selectedStalls}
+            onStallSelect={handleStallSelect}
+          />
+        </div>
 
         {/* Filters */}
         <div className="mb-8 space-y-4">
@@ -195,15 +202,6 @@ const Reserve = () => {
           </div>
         </div>
       </main>
-      {/* Venue Map */}
-        <div className="mb-8">
-          <VenueMap 
-            stalls={mockStalls}
-            selectedStalls={selectedStalls}
-            onStallSelect={handleStallSelect}
-            highlightedArea={selectedArea}
-          />
-        </div>
       <Footer />
 
       <ReservationModal

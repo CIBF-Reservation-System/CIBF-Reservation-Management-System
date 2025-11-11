@@ -32,7 +32,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T16:00:00\",\n  \"notes\": \"Need projector setup\"\n}"
+          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"businessName\": \"Tech Solutions\",\n  \"email\": \"contact@techsolutions.com\",\n  \"phoneNumber\": \"123-456-7890\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/{{api_version}}/reservations/create",
@@ -112,7 +112,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Updated Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T17:00:00\",\n  \"notes\": \"Updated: Need projector and sound system\"\n}"
+          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"businessName\": \"Updated Tech Solutions\",\n  \"email\": \"updated@techsolutions.com\",\n  \"phoneNumber\": \"987-654-3210\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}",
