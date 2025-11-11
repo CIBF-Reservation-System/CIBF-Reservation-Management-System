@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
-@CrossOrigin
-@RequestMapping(value = "/api/v1/")
+//@CrossOrigin
+@RequestMapping(value = "/api/v1/stall")
 public class StallController {
 
     @Autowired
@@ -36,7 +37,7 @@ public class StallController {
 //        return stallService.getStallsById(stallId);
 //
 //    }
-    public ResponseEntity<?> getStallById(@PathVariable Integer stallId) {
+    public ResponseEntity<?> getStallById(@PathVariable UUID stallId) {
         StallDTO stallDTO = stallService.getStallsById(stallId);
 
         if (stallDTO == null) {
@@ -53,7 +54,7 @@ public class StallController {
     }
 
     @PutMapping("/updatestall/{stallId}")
-    public ResponseEntity<?> updateStall(@PathVariable int stallId, @RequestBody StallDTO stallDTO) {
+    public ResponseEntity<?> updateStall(@PathVariable UUID stallId, @RequestBody StallDTO stallDTO) {
          try {
              StallDTO updatedStall = stallService.updateStall(stallId, stallDTO);
              Map<String, Object> response = new HashMap<>();
@@ -68,7 +69,7 @@ public class StallController {
     }
 
     @DeleteMapping("/deletestall/{stallId}")
-    public String deleteStalls(@PathVariable Integer stallId) {
+    public String deleteStalls(@PathVariable UUID stallId) {
         return stallService.deleteStalls(stallId);
     }
 
@@ -80,6 +81,11 @@ public class StallController {
     @GetMapping("/reserved")
     public List<StallDTO> getReservedStalls() {
         return stallService.getReservedStalls();
+    }
+
+    @PutMapping("/updateavailability/{stallId}")
+    public String updateAvailability(@PathVariable UUID stallId) {
+        return stallService.updateAvailability(stallId);
     }
 
 }
