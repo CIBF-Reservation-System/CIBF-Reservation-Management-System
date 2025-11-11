@@ -1,6 +1,5 @@
 package com.cibf.adminservice.admin.Security;
 
-import com.cibf.adminservice.admin.Repository.AdminUserRepository;
 import com.cibf.adminservice.admin.Util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,20 +8,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 /**
- * JWT Authentication filter that extracts token, validates, and populates SecurityContext
+ * JWT Authentication filter for admin-service
+ * Validates JWT tokens from user-service and populates SecurityContext
+ * No separate admin authentication - uses user-service JWT with ROLE_ORGANIZER
  */
 @Component
 @RequiredArgsConstructor
@@ -30,10 +30,11 @@ import java.util.UUID;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final AdminUserRepository adminUserRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, 
+                                     @NonNull HttpServletResponse response, 
+                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -41,36 +42,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
+            
             String token = authHeader.substring(7);
             if (!jwtUtil.validateToken(token)) {
+                log.debug("Invalid JWT token");
                 filterChain.doFilter(request, response);
                 return;
             }
-            String username = jwtUtil.extractUsername(token);
-            UUID adminId = jwtUtil.extractAdminId(token);
-            String role = jwtUtil.extractRole(token);
-
-            // Double-check user still exists and is active
-            var adminOpt = adminUserRepository.findById(adminId);
-            if (adminOpt.isEmpty() || !Boolean.TRUE.equals(adminOpt.get().getIsActive())) {
+            
+            // Extract claims from user-service JWT
+            String email = jwtUtil.extractUsername(token);
+            String roleName = jwtUtil.extractRole(token);
+            
+            // Only ROLE_ORGANIZER can access admin endpoints
+            if (!"ROLE_ORGANIZER".equals(roleName)) {
+                log.debug("Access denied - role {} not authorized for admin endpoints", roleName);
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            var authority = new SimpleGrantedAuthority("ROLE_" + role);
+            // Set authentication with ROLE_ORGANIZER authority
+            var authority = new SimpleGrantedAuthority(roleName);
             var authentication = new UsernamePasswordAuthenticationToken(
-                    username,
+                    email,
                     null,
                     List.of(authority)
             );
+            
+            // Add user details to authentication
             var details = new HashMap<String, Object>();
-            details.put("adminId", adminId.toString());
-            details.put("role", role);
+            details.put("email", email);
+            details.put("role", roleName);
             authentication.setDetails(details);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.debug("Authentication successful for user: {} with role: {}", email, roleName);
+            
         } catch (Exception e) {
-            log.warn("JWT filter error: {}", e.getMessage());
+            log.warn("JWT authentication failed: {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }

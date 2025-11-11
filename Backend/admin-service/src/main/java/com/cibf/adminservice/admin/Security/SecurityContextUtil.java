@@ -4,44 +4,56 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.UUID;
-
 /**
- * Utility to extract current admin context from Spring Security.
- * Assumes JwtAuthenticationFilter has set Authentication with principal=username and authority ROLE_*.
- * Extend later to include additional claims if needed.
+ * Utility to extract current user context from Spring Security
+ * Works with JWT authentication from user-service
  */
 public final class SecurityContextUtil {
     private SecurityContextUtil() {}
 
-    public static UUID getCurrentAdminId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) return null;
-        // We stored adminId in details via JwtAuthenticationFilter enhancement (to be added)
-        Object details = auth.getDetails();
-        if (details instanceof java.util.Map<?,?> map) {
-            Object raw = map.get("adminId");
-            if (raw != null) {
-                try { return UUID.fromString(raw.toString()); } catch (Exception ignored) { }
-            }
-        }
-        return null; // Fallback until filter updated to inject adminId
-    }
-
-    public static String getCurrentUsername() {
+    /**
+     * Get current user email (principal)
+     */
+    public static String getCurrentEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null ? String.valueOf(auth.getPrincipal()) : null;
     }
 
+    /**
+     * Get current user role (ROLE_ORGANIZER or ROLE_PUBLISHER)
+     */
     public static String getCurrentRole() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return null;
+        
+        // Extract full role name (e.g., "ROLE_ORGANIZER")
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .filter(r -> r.startsWith("ROLE_"))
-                .map(r -> r.substring(5))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Get business name from authentication details
+     */
+    public static String getCurrentBusinessName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+        
+        Object details = auth.getDetails();
+        if (details instanceof java.util.Map<?,?> map) {
+            Object businessName = map.get("businessName");
+            return businessName != null ? businessName.toString() : null;
+        }
+        return null;
+    }
+    
+    /**
+     * Check if current user is an organizer (admin)
+     */
+    public static boolean isOrganizer() {
+        String role = getCurrentRole();
+        return "ROLE_ORGANIZER".equals(role);
     }
 }
 

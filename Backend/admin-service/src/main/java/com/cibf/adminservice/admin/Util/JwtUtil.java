@@ -2,7 +2,6 @@ package com.cibf.adminservice.admin.Util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,13 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 /**
- * JWT Utility class for token generation and validation
+ * JWT Utility class for validating user-service JWT tokens
+ * Admin service does not generate its own tokens - it validates tokens from user-service
  */
 @Component
 @Slf4j
@@ -24,9 +21,6 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
-
-    @Value("${jwt.expiration}")
-    private Long expiration;
 
     /**
      * Generate signing key from secret
@@ -37,53 +31,32 @@ public class JwtUtil {
     }
 
     /**
-     * Generate JWT token for admin user
-     */
-    public String generateToken(UUID adminId, String username, String role) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("adminId", adminId.toString());
-        claims.put("role", role);
-        return createToken(claims, username);
-    }
-
-    /**
-     * Create JWT token with claims
-     */
-    private String createToken(Map<String, Object> claims, String subject) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    /**
-     * Extract username from token
+     * Extract username (email) from token
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     /**
-     * Extract admin ID from token
-     */
-    public UUID extractAdminId(String token) {
-        Claims claims = extractAllClaims(token);
-        String adminIdStr = claims.get("adminId", String.class);
-        return UUID.fromString(adminIdStr);
-    }
-
-    /**
-     * Extract role from token
+     * Extract role from token (expects 'roleName' claim from user-service)
      */
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
+        // User-service JWT contains 'roleName' claim
+        String roleName = claims.get("roleName", String.class);
+        if (roleName != null) {
+            return roleName;
+        }
+        // Fallback to 'role' if roleName not present
         return claims.get("role", String.class);
+    }
+
+    /**
+     * Extract business name from token
+     */
+    public String extractBusinessName(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("businessName", String.class);
     }
 
     /**
