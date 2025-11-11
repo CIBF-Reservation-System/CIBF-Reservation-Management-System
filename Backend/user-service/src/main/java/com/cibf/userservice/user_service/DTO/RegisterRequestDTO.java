@@ -16,5 +16,5 @@ public class RegisterRequestDTO {
     private String businessName;
     private String contactPerson;
     private String phone;
-    private String roleName;
+   // private String roleName;
 }

@@ -29,6 +29,10 @@ public class AuthService {
     }
 
     public RegisterResponseDTO register (RegisterRequestDTO req){
+
+        // Always assign default role
+       // req.setRoleName("ROLE_USER");
+
         if(isUserEnable(req.getEmail()))
             return new RegisterResponseDTO(null, "user already exits in the system !");
 
@@ -85,8 +89,8 @@ public class AuthService {
     public UserEntity createUser(RegisterRequestDTO userData){
 
         // Fetch role from database
-        Role role = roleRepository.findByRoleName(userData.getRoleName())
-                .orElseThrow(() -> new RuntimeException("Role not found: " + userData.getRoleName()));
+        Role role = roleRepository.findByRoleName("ROLE_PUBLISHER")
+                .orElseThrow(() -> new RuntimeException("Default role ROLE_USER not found"));
 
         //  Build user entity
         UserEntity newUser = UserEntity.builder()
@@ -120,6 +124,17 @@ public class AuthService {
             );
         }
         throw new RuntimeException("Unauthorized access!");
+    }
+
+
+    // Logout
+    public LogoutResponseDTO logout() {
+        SecurityContextHolder.clearContext();
+
+        return LogoutResponseDTO.builder()
+                .status("SUCCESS")
+                .message("Logged out successfully.")
+                .build();
     }
 
 
