@@ -222,6 +222,15 @@ const Reserve = () => {
         />
       </div>
 
+  {/* Venue Map */}
+      <div className="mb-8">
+        <GoogleMapsVenue  
+          stalls={stalls}
+          selectedStalls={selectedStalls}
+          onStallSelect={handleStallSelect}
+          // highlightedArea={selectedArea}
+        />
+      </div>
 
 
       <Footer />

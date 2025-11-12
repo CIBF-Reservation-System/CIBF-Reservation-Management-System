@@ -11,22 +11,6 @@ const api = axios.create({
   },
 });
 
-// export const reservationService = {
-
-//   // Get all stalls
-//   async makeReservation() {
-//     try {
-//       const response = await api.post('/reservations');
-//       return response.data; 
-//     } catch (error: any) {
-//       console.error('Error fetching stalls:', error.response?.data || error.message);
-//       throw error;
-//     }
-//   },
-
-
-// };
-
 export const reservationService = {
   async makeReservation(reservations: any[]) {
     try {
@@ -37,6 +21,30 @@ export const reservationService = {
       throw error;
     }
   },
+
+   // Fetch reservations by userId
+  async getUserReservations(userId: string) {
+    try {
+      const response = await api.get(`/reservations/user/${userId}`);
+      return response.data; // returns an array of reservations
+    } catch (error: any) {
+      console.error('Error fetching reservations:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+
+  // all reservations
+   async getAllReservations() {
+    try {
+      const response = await api.get("/reservations"); // your endpoint
+      return response.data; // array of reservations
+    } catch (error: any) {
+      console.error("Error fetching all reservations:", error.response?.data || error.message);
+      throw error;
+    }
+  },
+
 };
 
 
