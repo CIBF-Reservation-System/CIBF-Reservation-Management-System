@@ -34,6 +34,17 @@ export const reservationService = {
   },
 
 
+  // all reservations
+   async getAllReservations() {
+    try {
+      const response = await api.get("/reservations"); // your endpoint
+      return response.data; // array of reservations
+    } catch (error: any) {
+      console.error("Error fetching all reservations:", error.response?.data || error.message);
+      throw error;
+    }
+  },
+
 };
 
 
