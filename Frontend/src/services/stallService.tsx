@@ -22,5 +22,16 @@ export const stallService = {
     }
   },
 
+
+  // Get stall details by stallId
+  async getStallById(stallId: string) {
+    try {
+      const response = await api.get(`/stall/stall/${stallId}`);
+      return response.data.stall; // returns the stall object
+    } catch (error: any) {
+      console.error('Error fetching stall details:', error.response?.data || error.message);
+      throw error;
+    }
+  },
  
 };

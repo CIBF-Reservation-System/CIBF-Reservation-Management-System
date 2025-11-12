@@ -1,14 +1,55 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Download, Printer, Search, LayoutGrid, Users, TrendingUp, MapPin } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Download,
+  Printer,
+  Search,
+  LayoutGrid,
+  Users,
+  TrendingUp,
+  MapPin,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Stall, StallSize } from "@/components/StallCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for reservations
 interface Reservation {
@@ -62,12 +103,14 @@ const mockReservations: Reservation[] = [
 // Mock stalls data for management grid
 const mockStallsForManagement: Stall[] = Array.from({ length: 30 }, (_, i) => {
   const stallNumber = i + 1;
-  const label = `${String.fromCharCode(65 + Math.floor(i / 10))}${stallNumber % 10 || 10}`;
+  const label = `${String.fromCharCode(65 + Math.floor(i / 10))}${
+    stallNumber % 10 || 10
+  }`;
   const sizes: StallSize[] = ["Small", "Medium", "Large"];
   const size = sizes[i % 3];
   const prices = { Small: 50000, Medium: 85000, Large: 120000 };
   const areas = ["Hall A", "Hall B", "Outdoor"];
-  
+
   return {
     id: `stall-${i + 1}`,
     label,
@@ -84,29 +127,45 @@ export default function OrganizerDashboard() {
   const [areaFilter, setAreaFilter] = useState<string>("all");
   const [stalls, setStalls] = useState<Stall[]>(mockStallsForManagement);
 
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
+  };
+
   // Calculate statistics
   const totalStalls = stalls.length;
   const reservedStalls = stalls.filter((s) => !s.available).length;
   const availableStalls = totalStalls - reservedStalls;
   const reservedPercentage = ((reservedStalls / totalStalls) * 100).toFixed(1);
-  const newReservations = mockReservations.filter((r) => r.status === "pending").length;
+  const newReservations = mockReservations.filter(
+    (r) => r.status === "pending"
+  ).length;
 
   // Occupancy by area data
   const occupancyData = [
     {
       area: "Hall A",
-      reserved: stalls.filter((s) => s.area === "Hall A" && !s.available).length,
-      available: stalls.filter((s) => s.area === "Hall A" && s.available).length,
+      reserved: stalls.filter((s) => s.area === "Hall A" && !s.available)
+        .length,
+      available: stalls.filter((s) => s.area === "Hall A" && s.available)
+        .length,
     },
     {
       area: "Hall B",
-      reserved: stalls.filter((s) => s.area === "Hall B" && !s.available).length,
-      available: stalls.filter((s) => s.area === "Hall B" && s.available).length,
+      reserved: stalls.filter((s) => s.area === "Hall B" && !s.available)
+        .length,
+      available: stalls.filter((s) => s.area === "Hall B" && s.available)
+        .length,
     },
     {
       area: "Outdoor",
-      reserved: stalls.filter((s) => s.area === "Outdoor" && !s.available).length,
-      available: stalls.filter((s) => s.area === "Outdoor" && s.available).length,
+      reserved: stalls.filter((s) => s.area === "Outdoor" && !s.available)
+        .length,
+      available: stalls.filter((s) => s.area === "Outdoor" && s.available)
+        .length,
     },
   ];
 
@@ -118,16 +177,28 @@ export default function OrganizerDashboard() {
   // Filter reservations
   const filteredReservations = mockReservations.filter((reservation) => {
     const matchesSearch =
-      reservation.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reservation.businessName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       reservation.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reservation.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || reservation.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || reservation.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   // Export to CSV
   const handleExportCSV = () => {
-    const headers = ["Reference", "Business Name", "Email", "Phone", "Stalls", "Date", "Status", "Amount"];
+    const headers = [
+      "Reference",
+      "Business Name",
+      "Email",
+      "Phone",
+      "Stalls",
+      "Date",
+      "Status",
+      "Amount",
+    ];
     const rows = mockReservations.map((r) => [
       r.reference,
       r.businessName,
@@ -138,16 +209,20 @@ export default function OrganizerDashboard() {
       r.status,
       r.totalAmount.toString(),
     ]);
-    
-    const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `reservations-${new Date().toISOString().split("T")[0]}.csv`;
+    link.download = `reservations-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    
+
     toast.success("CSV exported successfully");
   };
 
@@ -178,8 +253,12 @@ export default function OrganizerDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">Organizer Dashboard</h1>
-            <p className="text-muted-foreground mt-2">Manage reservations and stall availability</p>
+            <h1 className="text-4xl font-bold text-foreground">
+              Organizer Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Manage reservations and stall availability
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handlePrintQR}>
@@ -190,6 +269,9 @@ export default function OrganizerDashboard() {
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
+            <Button variant="destructive" onClick={handleLogout}>
+              Logout
+            </Button>
           </div>
         </div>
 
@@ -197,12 +279,16 @@ export default function OrganizerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Stalls</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Stalls
+              </CardTitle>
               <LayoutGrid className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{totalStalls}</div>
-              <p className="text-xs text-muted-foreground mt-1">Across all areas</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Across all areas
+              </p>
             </CardContent>
           </Card>
 
@@ -213,7 +299,9 @@ export default function OrganizerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{reservedPercentage}%</div>
-              <p className="text-xs text-muted-foreground mt-1">{reservedStalls} stalls booked</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {reservedStalls} stalls booked
+              </p>
             </CardContent>
           </Card>
 
@@ -224,18 +312,24 @@ export default function OrganizerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{availableStalls}</div>
-              <p className="text-xs text-muted-foreground mt-1">Ready to reserve</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Ready to reserve
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Reservations</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                New Reservations
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{newReservations}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pending confirmation</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Pending confirmation
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -245,7 +339,9 @@ export default function OrganizerDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Occupancy by Area</CardTitle>
-              <CardDescription>Reserved vs Available stalls per area</CardDescription>
+              <CardDescription>
+                Reserved vs Available stalls per area
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -265,7 +361,9 @@ export default function OrganizerDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Overall Occupancy</CardTitle>
-              <CardDescription>Distribution of stall availability</CardDescription>
+              <CardDescription>
+                Distribution of stall availability
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -338,16 +436,24 @@ export default function OrganizerDashboard() {
                 <TableBody>
                   {filteredReservations.map((reservation) => (
                     <TableRow key={reservation.id}>
-                      <TableCell className="font-mono text-sm">{reservation.reference}</TableCell>
-                      <TableCell className="font-medium">{reservation.businessName}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {reservation.reference}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {reservation.businessName}
+                      </TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{reservation.email}</div>
-                          <div className="text-muted-foreground">{reservation.phone}</div>
+                          <div className="text-muted-foreground">
+                            {reservation.phone}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>{reservation.stalls.join(", ")}</TableCell>
-                      <TableCell>{new Date(reservation.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {new Date(reservation.date).toLocaleDateString()}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -361,7 +467,9 @@ export default function OrganizerDashboard() {
                           {reservation.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>LKR {reservation.totalAmount.toLocaleString()}</TableCell>
+                      <TableCell>
+                        LKR {reservation.totalAmount.toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline">
@@ -384,7 +492,9 @@ export default function OrganizerDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Stall Management</CardTitle>
-            <CardDescription>Click stalls to toggle between Available / Reserved / Blocked</CardDescription>
+            <CardDescription>
+              Click stalls to toggle between Available / Reserved / Blocked
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="mb-6">
@@ -413,7 +523,9 @@ export default function OrganizerDashboard() {
                   }`}
                 >
                   <div className="text-lg font-bold">{stall.label}</div>
-                  <div className="text-xs mt-1">{stall.available ? "Available" : "Reserved"}</div>
+                  <div className="text-xs mt-1">
+                    {stall.available ? "Available" : "Reserved"}
+                  </div>
                 </button>
               ))}
             </div>

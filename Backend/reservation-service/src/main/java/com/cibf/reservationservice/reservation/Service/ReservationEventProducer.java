@@ -16,7 +16,7 @@ public class ReservationEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private static final String TOPIC = "bookfari.reservation.created";
+    private static final String TOPIC = "bookfair.reservation.created";
 
     public void publishReservationsCreated(List<Reservation> reservations) {
         List<ReservationEvent> events = reservations.stream()
