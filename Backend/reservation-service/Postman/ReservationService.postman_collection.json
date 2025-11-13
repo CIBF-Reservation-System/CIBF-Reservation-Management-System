@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "_03_Reservation Service API",
-    "description": "Complete API collection for the Reservation Service microservice",
+    "description": "Complete API collection for the Reservation Service microservice - Updated for array-based reservation creation",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "reservation-service"
   },
@@ -32,14 +32,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T16:00:00\",\n  \"notes\": \"Need projector setup\"\n}"
+          "raw": "[\n  {\n    \"userId\": \"{{user_id}}\",\n    \"stallId\": \"{{stall_id}}\",\n    \"businessName\": \"Tech Solutions\",\n    \"email\": \"contact@techsolutions.com\",\n    \"phoneNumber\": \"123-456-7890\"\n  }\n]"
         },
         "url": {
-          "raw": "{{base_url}}/api/{{api_version}}/reservations/create",
+          "raw": "{{base_url}}/api/{{api_version}}/reservations",
           "host": ["{{base_url}}"],
-          "path": ["api", "{{api_version}}", "reservations", "create"]
+          "path": ["api", "{{api_version}}", "reservations"]
         },
-        "description": "Create a new reservation"
+        "description": "Create new reservations (accepts array of reservation objects)"
       },
       "event": [
         {
@@ -48,8 +48,10 @@
             "exec": [
               "if (pm.response.code === 201) {",
               "    const response = pm.response.json();",
-              "    pm.environment.set('reservation_id', response.reservationId);",
-              "    console.log('Reservation created with ID:', response.reservationId);",
+              "    if (Array.isArray(response) && response.length > 0) {",
+              "        pm.environment.set('reservation_id', response[0].reservationId);",
+              "        console.log('First reservation created with ID:', response[0].reservationId);",
+              "    }",
               "}"
             ],
             "type": "text/javascript"
@@ -101,43 +103,6 @@
       "response": []
     },
     {
-      "name": "Update Reservation",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"stallId\": \"{{stall_id}}\",\n  \"eventName\": \"Updated Tech Conference\",\n  \"reservationDate\": \"2025-10-27T10:00:00\",\n  \"startTime\": \"2025-10-27T14:00:00\",\n  \"endTime\": \"2025-10-27T17:00:00\",\n  \"notes\": \"Updated: Need projector and sound system\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}"]
-        },
-        "description": "Update an existing reservation"
-      },
-      "response": []
-    },
-    {
-      "name": "Cancel Reservation",
-      "request": {
-        "method": "PATCH",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/{{api_version}}/reservations/{{reservation_id}}/cancel",
-          "host": ["{{base_url}}"],
-          "path": ["api", "{{api_version}}", "reservations", "{{reservation_id}}", "cancel"]
-        },
-        "description": "Cancel a reservation"
-      },
-      "response": []
-    },
-    {
       "name": "Delete Reservation",
       "request": {
         "method": "DELETE",
@@ -149,6 +114,19 @@
         },
         "description": "Delete a reservation (only cancelled or pending reservations can be deleted)"
       },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 204) {",
+              "    console.log('Reservation deleted successfully');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "response": []
     }
   ],

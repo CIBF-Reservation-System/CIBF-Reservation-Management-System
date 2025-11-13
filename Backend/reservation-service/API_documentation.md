@@ -11,33 +11,30 @@ request:
     headers:
         Content-Type: text/plain
     body:
-        {
+        [{
             "userId": "550e8400-e29b-41d4-a716-446655440000",
             "stallId": "550e8400-e29b-41d4-a716-446655440001",
-            "eventName": "Tech Conference",
-            "reservationDate": "2025-10-27T10:00:00",
-            "startTime": "2025-10-27T14:00:00",
-            "endTime": "2025-10-27T16:00:00",
-            "notes": "Need projector setup"
-        }   
+            "businessName": "Tech Solutions",
+            "email": "contact@techsolutions.com",
+            "phoneNumber": "123-456-7890"
+        }]   
         response:
             201 Created
             body:
-                {
-                "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
-                "userId": "550e8400-e29b-41d4-a716-446655440000",
-                "stallId": "550e8400-e29b-41d4-a716-446655440001",
-                "eventName": "Tech Conference",
-                "reservationDate": "2025-10-27T10:00:00",
-                "startTime": "2025-10-27T14:00:00",
-                "endTime": "2025-10-27T16:00:00",
-                "status": "PENDING",
-                "notes": "Need projector setup",
-                "createdAt": null,
-                "updatedAt": null,
-                "message": "Reservation created successfully",
-                "error": null
-                }
+                [{
+                    "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
+                    "userId": "550e8400-e29b-41d4-a716-446655440000",
+                    "stallId": "550e8400-e29b-41d4-a716-446655440001",
+                    "businessName": "Tech Solutions",
+                    "email": "contact@techsolutions.com",
+                    "phoneNumber": "123-456-7890",
+                    "reservationDate": "2025-10-27T10:00:00"
+                }]
+        Error Responses:
+            400 Bad Request - Invalid input data
+            409 Conflict - Reservation already exists
+            429 Too Many Requests - User has reached the maximum number of reservations allowed for the selected date
+
 
 # Get all reservations
 request:
@@ -50,16 +47,9 @@ response:
                 "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
                 "userId": "550e8400-e29b-41d4-a716-446655440000",
                 "stallId": "550e8400-e29b-41d4-a716-446655440001",
-                "eventName": "Tech Conference",
-                "reservationDate": "2025-10-27T10:00:00",
-                "startTime": "2025-10-27T14:00:00",
-                "endTime": "2025-10-27T16:00:00",
-                "status": "PENDING",
-                "notes": "Need projector setup",
-                "createdAt": null,
-                "updatedAt": null,
-                "message": "Reservation retrieved successfully",
-                "error": null
+                "businessName": "Tech Solutions",
+                "email": "contact@techsolutions.com",
+                "phoneNumber": "123-456-7890"
             },
             {...}
         ]
@@ -74,16 +64,9 @@ response:
             "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
             "userId": "550e8400-e29b-41d4-a716-446655440000",
             "stallId": "550e8400-e29b-41d4-a716-446655440001",
-            "eventName": "Tech Conference",
-            "reservationDate": "2025-10-27T10:00:00",
-            "startTime": "2025-10-27T14:00:00",
-            "endTime": "2025-10-27T16:00:00",
-            "status": "PENDING",
-            "notes": "Need projector setup",
-            "createdAt": null,
-            "updatedAt": null,
-            "message": "Reservation retrieved successfully",
-            "error": null
+            "businessName": "Tech Solutions",
+            "email": "contact@techsolutions.com",
+            "phoneNumber": "123-456-7890"
         }
 
 # Get reservations by User ID
@@ -97,78 +80,22 @@ response:
                 "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
                 "userId": "550e8400-e29b-41d4-a716-446655440000",
                 "stallId": "550e8400-e29b-41d4-a716-446655440001",
-                "eventName": "Tech Conference",
-                "reservationDate": "2025-10-27T10:00:00",
-                "startTime": "2025-10-27T14:00:00",
-                "endTime": "2025-10-27T16:00:00",
-                "status": "PENDING",
-                "notes": "Need projector setup",
-                "createdAt": null,
-                "updatedAt": null,
-                "message": "Reservation retrieved successfully",
-                "error": null
+                "businessName": "Tech Solutions",
+                "email": "contact@techsolutions.com",
+                "phoneNumber": "123-456-7890"
             },
             {...}
         ]
 
-# Update reservation status
-request:
-    PUT http://localhost:8083/api/v1/reservations/{reservationId}/status
-    headers:
-        Content-Type: text/plain
-    body:
-        {
-            "status": "APPROVED"
-        }
-response:
-    200 OK
-    body:
-        {
-            "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
-            "userId": "550e8400-e29b-41d4-a716-446655440000",
-            "stallId": "550e8400-e29b-41d4-a716-446655440001",
-            "eventName": "Tech Conference",
-            "reservationDate": "2025-10-27T10:00:00",
-            "startTime": "2025-10-27T14:00:00",
-            "endTime": "2025-10-27T16:00:00",
-            "status": "APPROVED",
-            "notes": "Need projector setup",
-            "createdAt": null,
-            "updatedAt": null,
-            "message": "Reservation status updated successfully",
-            "error": null
-        }
 
-# Cancel a reservation
-request:
-    PATCH http://localhost:8083/api/v1/reservations/{reservationId}/cancel
-response:
-    200 OK
-    body:
-        {
-            "reservationId": "2fc0f923-5079-481b-8355-35abe6cfda92",
-            "userId": "550e8400-e29b-41d4-a716-446655440000",
-            "stallId": "550e8400-e29b-41d4-a716-446655440001",
-            "eventName": "Tech Conference",
-            "reservationDate": "2025-10-27T10:00:00",
-            "startTime": "2025-10-27T14:00:00",
-            "endTime": "2025-10-27T16:00:00",
-            "status": "CANCELLED",
-            "notes": "Need projector setup",
-            "createdAt": null,
-            "updatedAt": null,
-            "message": "Reservation cancelled successfully",
-            "error": null
-        }
 
 # Delete a reservation
 request:
     DELETE http://localhost:8083/api/v1/reservations/{reservationId}
 response:
-    200 OK
+    204 No Content
     body:
         {
             "message": "Reservation deleted successfully",
             "error": null
         }
-

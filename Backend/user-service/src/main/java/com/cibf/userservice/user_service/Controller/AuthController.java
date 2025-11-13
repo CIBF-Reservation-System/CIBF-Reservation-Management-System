@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/auth")
-@CrossOrigin
+//@CrossOrigin
 public class AuthController {
 
     private final AuthService authService;
@@ -52,13 +52,26 @@ public class AuthController {
 
 
     // Get current user info
-//    @GetMapping("/profile")
-//    public ResponseEntity<UserResponseDTO> getCurrentUser() {
-//        return ResponseEntity.ok(authService.getCurrentUser());
-//    }
     @GetMapping("/profile")
     public UserResponseDTO getCurrentUser() {
         return authService.getCurrentUser();
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutResponseDTO> logout(HttpServletResponse response) {
+        // Clear JWT cookie
+        Cookie cookie = new Cookie("JWT_TOKEN", "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // true for production
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        // Business logic from service
+        LogoutResponseDTO res = authService.logout();
+
+        return ResponseEntity.ok(res);
     }
 
 }
