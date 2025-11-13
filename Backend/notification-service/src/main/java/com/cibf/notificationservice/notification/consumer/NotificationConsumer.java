@@ -2,6 +2,7 @@ package com.cibf.notificationservice.notification.consumer;
 
 import com.cibf.notificationservice.notification.consumer.handler.RegistrationEventHandler;
 import com.cibf.notificationservice.notification.consumer.handler.ReservationEventHandler;
+import com.cibf.notificationservice.notification.consumer.handler.CancellationEventHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
