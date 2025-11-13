@@ -95,4 +95,36 @@ public class NotificationConsumer {
             log.error("Error processing registration event: {}", e.getMessage(), e);
         }
     }
+
+    @KafkaListener(
+            topics = "${app.kafka.topics.cancellation}",
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void consumeCancellationEvents(
+            @Payload String message,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment acknowledgment
+    ) {
+
+        log.info(" CANCELLATION EVENT RECEIVED");
+        log.info("Topic: {}", topic);
+        log.info("Partition: {}", partition);
+        log.info("Offset: {}", offset);
+        log.info("Message: {}", message.substring(0, Math.min(100, message.length())) + "...");
+
+        try {
+            cancellationEventHandler.handle(message);
+
+            acknowledgment.acknowledge();
+
+            log.info(" Cancellation event processed and acknowledged");
+            log.info("Offset {} committed", offset);
+
+        } catch (Exception e) {
+            log.error(" Error processing cancellation event", e);
+            log.error("Failed message: {}", message);
+        }
+    }
 }
