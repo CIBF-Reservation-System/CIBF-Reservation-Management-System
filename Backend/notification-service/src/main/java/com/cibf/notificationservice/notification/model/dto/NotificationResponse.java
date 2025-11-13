@@ -1,7 +1,7 @@
-package lk.bookfair.notification.model.dto;
+package com.cibf.notificationservice.notification.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lk.bookfair.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

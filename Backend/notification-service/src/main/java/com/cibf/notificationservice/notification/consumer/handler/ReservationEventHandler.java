@@ -1,8 +1,9 @@
-package lk.bookfair.notification.consumer.handler;
+package com.cibf.notificationservice.notification.consumer.handler;
 
-import com.google.gson.Gson;
-import lk.bookfair.notification.model.event.ReservationEvent;
-import lk.bookfair.notification.service.NotificationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.cibf.notificationservice.notification.model.event.ReservationEvent;
+import com.cibf.notificationservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,15 +14,17 @@ import org.springframework.stereotype.Component;
 public class ReservationEventHandler {
 
     private final NotificationService notificationService;
-    private final Gson gson;
+
+
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
 
     public void handle(String eventData) {
 
         log.info(" Processing reservation event...");
 
         try {
-
-            ReservationEvent event = gson.fromJson(eventData, ReservationEvent.class);
+            ReservationEvent event = objectMapper.readValue(eventData, ReservationEvent.class);
 
             if (event == null) {
                 log.warn(" Received null event");
@@ -40,15 +43,13 @@ public class ReservationEventHandler {
             log.info("   Stalls: {}", event.getStalls().size());
             log.info("   Total: Rs. {}", event.getTotalAmount());
 
-            //Call notification service to process the reservation confirmation
             notificationService.processReservationConfirmation(event);
 
             log.info(" Reservation event processed successfully");
 
-        } catch (com.google.gson.JsonSyntaxException e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.error(" Invalid JSON format: {}", e.getMessage());
             throw new RuntimeException("Invalid JSON", e);
-
         } catch (Exception e) {
             log.error(" Error handling reservation event: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to process reservation event", e);

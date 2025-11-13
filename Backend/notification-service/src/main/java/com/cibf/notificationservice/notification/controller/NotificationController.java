@@ -1,9 +1,9 @@
-package lk.bookfair.notification.controller;
+package com.cibf.notificationservice.notification.controller;
 
-import lk.bookfair.notification.model.dto.NotificationResponse;
-import lk.bookfair.notification.model.entity.NotificationLog;
-import lk.bookfair.notification.model.enums.NotificationType;
-import lk.bookfair.notification.repository.NotificationLogRepository;
+import com.cibf.notificationservice.notification.model.dto.NotificationResponse;
+import com.cibf.notificationservice.notification.model.entity.NotificationLog;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.repository.NotificationLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;

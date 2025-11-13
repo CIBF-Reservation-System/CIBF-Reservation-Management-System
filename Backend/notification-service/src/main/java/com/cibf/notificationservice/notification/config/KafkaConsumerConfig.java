@@ -1,4 +1,4 @@
-package lk.bookfair.notification.config;
+package com.cibf.notificationservice.notification.config;
 
 import com.google.gson.Gson;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

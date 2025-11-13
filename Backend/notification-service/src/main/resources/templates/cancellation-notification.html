@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Cancelled</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+            padding: 20px;
+        }
+
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .message {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        .section {
+            background-color: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #dc3545;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #dc3545;
+            margin-right: 12px;
+        }
+
+        /* Info Table */
+        .info-table {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        /* Stall Card */
+        .stall-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .stall-card:hover {
+            border-color: #dc3545;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+        }
+
+        .stall-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .stall-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-size {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-price {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .stall-location {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-left: 6px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 12px;
+        }
+
+        .warning-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .warning-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #856404;
+            font-size: 14px;
+        }
+
+        .warning-list li::before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+            font-size: 16px;
+        }
+
+        /* Refund Box */
+        .refund-box {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .refund-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .refund-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .refund-info {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background-color: #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .contact-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .contact-list li {
+            padding: 10px 0;
+            font-size: 15px;
+            color: #495057;
+        }
+
+        /* CTA Button */
+        .cta-section {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .footer-note {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            .section {
+                padding: 20px 15px;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+
+    <div class="header">
+        <h1> RESERVATION CANCELLED</h1>
+        <p>Colombo International Book Fair 2025</p>
+    </div>
+
+    <div class="content">
+
+        <div class="greeting">
+            Dear <strong th:text="${userName}">Customer</strong>,
+        </div>
+
+        <div class="message">
+            <p>We regret to inform you that your stall reservation for <strong th:text="${businessName}">Your Business</strong> has been <strong>cancelled</strong>.</p>
+            <p style="margin-top: 15px;">This email confirms the cancellation and provides information about the refund process.</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📋 Cancellation Details</h2>
+
+            <div class="info-table">
+                <div class="info-row">
+                    <span class="info-label">Reservation ID:</span>
+                    <span class="info-value" th:text="${reservationId}">RES001</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Business Name:</span>
+                    <span class="info-value" th:text="${businessName}">John's Books</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Original Reservation Date:</span>
+                    <span class="info-value" th:text="${#temporals.format(originalReservationDate, 'dd MMM yyyy, HH:mm')}">08 Nov 2025, 14:30</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cancellation Date:</span>
+                    <span class="info-value" th:text="${#temporals.format(cancellationDate, 'dd MMM yyyy, HH:mm')}">09 Nov 2025, 10:15</span>
+                </div>
+                <div class="info-row" th:if="${cancellationReason != null and !cancellationReason.isEmpty()}">
+                    <span class="info-label">Reason:</span>
+                    <span class="info-value" th:text="${cancellationReason}">Change of plans</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title"> Cancelled Stalls</h2>
+
+            <div th:each="stall, iterStat : ${stalls}" class="stall-card">
+                <div class="stall-name">
+                    Stall <span th:text="${stall.stallName}">A1</span>
+                </div>
+
+                <div class="stall-details">
+                    <span class="badge badge-size" th:text="${stall.stallSize}">MEDIUM</span>
+                    <span class="badge badge-price">
+                            LKR <span th:text="${#numbers.formatDecimal(stall.price, 1, 2)}">5,000.00</span>
+                        </span>
+                </div>
+
+                <div class="stall-location">
+                     <span th:text="${stall.location}">Hall A, Row 1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="refund-box">
+            <div class="refund-title"> Refund Amount</div>
+            <div class="refund-amount">
+                LKR <span th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">15,000.00</span>
+            </div>
+            <div class="refund-info">
+                Your refund will be processed within <strong>5-7 business days</strong><br/>
+                and credited to your original payment method.
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <div class="warning-title"> Important Information</div>
+            <ul class="warning-list">
+                <li>Your reservation has been <strong>permanently cancelled</strong></li>
+                <li>Any previously issued QR codes are now <strong>invalid</strong></li>
+                <li>You will not be able to enter the exhibition with old QR codes</li>
+                <li>Refund processing will begin immediately</li>
+                <li>You can make a new reservation anytime if you change your mind</li>
+            </ul>
+        </div>
+
+        <div class="contact-box">
+            <h2 class="section-title" style="margin-bottom: 15px;"> Need Help?</h2>
+            <p style="margin-bottom: 15px; color: #495057;">
+                If you believe this cancellation was made in error, or if you have any questions:
+            </p>
+            <ul class="contact-list">
+                <li> Email: <strong>support@colombobookfair.lk</strong></li>
+                <li> Phone: <strong>+94 11 234 5678</strong></li>
+                <li> Website: <strong>www.colombobookfair.lk</strong></li>
+                <li> Support Hours: Monday - Friday, 9:00 AM - 5:00 PM</li>
+            </ul>
+        </div>
+
+        <div class="cta-section">
+            <p style="font-size: 16px; margin-bottom: 20px; color: #6c757d;">
+                Changed your mind? You can make a new reservation:
+            </p>
+            <a href="https://www.colombobookfair.lk/reservations" class="cta-button">
+                Make New Reservation
+            </a>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>Colombo International Book Fair 2025</strong></p>
+        <p>Sri Lanka Book Publishers' Association</p>
+        <p style="margin-top: 15px;"> Colombo Exhibition Center, Colombo 07</p>
+        <p> info@colombobookfair.lk |  +94 11 234 5678</p>
+
+        <p class="footer-note">
+            This is an automated email. Please do not reply to this message.<br/>
+            If you need assistance, please use the contact information above.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

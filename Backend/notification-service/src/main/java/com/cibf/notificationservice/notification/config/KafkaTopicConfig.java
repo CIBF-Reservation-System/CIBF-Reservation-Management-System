@@ -1,4 +1,4 @@
-package lk.bookfair.notification.config;
+package com.cibf.notificationservice.notification.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -23,6 +23,9 @@ public class KafkaTopicConfig {
     @Value("${app.kafka.topics.registration}")
     private String registrationTopic;
 
+    @Value("${app.kafka.topics.cancellation:bookfair.reservation.cancelled}")
+    private String cancellationTopic;
+
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
@@ -43,6 +46,15 @@ public class KafkaTopicConfig {
     public NewTopic registrationTopic() {
         return TopicBuilder
                 .name(registrationTopic)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic reservationCancelledTopic() {
+        return TopicBuilder
+                .name(cancellationTopic)
                 .partitions(3)
                 .replicas(1)
                 .build();
