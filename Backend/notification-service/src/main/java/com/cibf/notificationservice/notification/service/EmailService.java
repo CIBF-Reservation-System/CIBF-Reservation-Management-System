@@ -58,6 +58,43 @@ public class EmailService {
         }
     }
 
+    public void sendCancellationNotification(CancellationEvent event) {
+
+        log.info(" Preparing cancellation notification email");
+        log.info("To: {}", event.getUserEmail());
+        log.info("Reservation ID: {}", event.getReservationId());
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(FROM_EMAIL);
+            helper.setTo(event.getUserEmail());
+            helper.setSubject(" Reservation Cancelled - " + event.getBusinessName());
+
+            Context context = new Context();
+            context.setVariable("userName", event.getUserName());
+            context.setVariable("businessName", event.getBusinessName());
+            context.setVariable("reservationId", event.getReservationId());
+            context.setVariable("stalls", event.getStalls());
+            context.setVariable("totalAmount", event.getTotalAmount());
+            context.setVariable("originalReservationDate", event.getOriginalReservationDate());
+            context.setVariable("cancellationDate", event.getCancellationDate());
+            context.setVariable("cancellationReason", event.getCancellationReason());
+
+            String htmlContent = templateEngine.process("cancellation-notification", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+
+            log.info(" Cancellation notification email sent successfully");
+
+        } catch (Exception e) {
+            log.error(" Error sending cancellation notification email", e);
+            throw new RuntimeException("Failed to send cancellation notification email", e);
+        }
+    }
+
      //Send registration confirmation email
     public void sendRegistrationConfirmation(RegistrationEvent event) {
         try {
