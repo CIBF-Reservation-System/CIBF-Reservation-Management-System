@@ -32,11 +32,6 @@ public class StallController {
     }
 
     @GetMapping("/stall/{stallId}")
-//    public StallDTO getStallsById(@PathVariable Integer stallId) {
-//
-//        return stallService.getStallsById(stallId);
-//
-//    }
     public ResponseEntity<?> getStallById(@PathVariable UUID stallId) {
         StallDTO stallDTO = stallService.getStallsById(stallId);
 
@@ -55,6 +50,17 @@ public class StallController {
 
     @PutMapping("/updatestall/{stallId}")
     public ResponseEntity<?> updateStall(@PathVariable UUID stallId, @RequestBody StallDTO stallDTO) {
+        try {
+            StallDTO updatedStall = stallService.updateStall(stallId, stallDTO);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Stall updated successfully");
+            response.put("stall", updatedStall);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
          try {
              StallDTO updatedStall = stallService.updateStall(stallId, stallDTO);
              Map<String, Object> response = new HashMap<>();
@@ -86,6 +92,11 @@ public class StallController {
     @PutMapping("/updateavailability/{stallId}")
     public String updateAvailability(@PathVariable UUID stallId) {
         return stallService.updateAvailability(stallId);
+    }
+
+    @PutMapping("/cancelBooking/{stallId}")
+    public String cancelBookingById(@PathVariable UUID stallId) {
+        return stallService.cancelBooking(stallId);
     }
 
 }

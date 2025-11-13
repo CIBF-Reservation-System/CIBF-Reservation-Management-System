@@ -1,5 +1,12 @@
 package com.cibf.stallservice.stall.model;
 
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -16,24 +23,23 @@ public class Stall {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID stallId;  // Unique identifier (UUID)
+    private UUID stallId;
 
     @Column(nullable = false, unique = true)
-    private String label; // e.g., "A1", "B2"
+    private String label;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StallSize stallSize; // SMALL, MEDIUM, LARGE
+    private StallSize stallSize;
 
     @Column(nullable = false)
-    private double price; // e.g., 15000, 25000, etc.
+    private double price;
 
     @Column(nullable = false)
-    private int availability; // true or false
+    private int availability;
 
     @Column(nullable = false)
-    private String area; // e.g., "Hall A", "Outdoor"
-
+    private String area;
 }
 
 
