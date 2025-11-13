@@ -1,4 +1,4 @@
-package lk.bookfair.notification.service;
+package com.cibf.notificationservice.notification.service;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

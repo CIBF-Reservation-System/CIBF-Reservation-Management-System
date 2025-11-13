@@ -1,10 +1,11 @@
-package lk.bookfair.notification.service;
+package com.cibf.notificationservice.notification.service;
 
-import lk.bookfair.notification.model.entity.NotificationLog;
-import lk.bookfair.notification.model.enums.NotificationType;
-import lk.bookfair.notification.model.event.RegistrationEvent;
-import lk.bookfair.notification.model.event.ReservationEvent;
-import lk.bookfair.notification.repository.NotificationLogRepository;
+import com.cibf.notificationservice.notification.model.entity.NotificationLog;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.model.event.RegistrationEvent;
+import com.cibf.notificationservice.notification.model.event.ReservationEvent;
+import com.cibf.notificationservice.notification.model.event.CancellationEvent;
+import com.cibf.notificationservice.notification.repository.NotificationLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

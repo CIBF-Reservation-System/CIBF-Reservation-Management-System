@@ -1,4 +1,4 @@
-package lk.bookfair.notification.config;
+package com.cibf.notificationservice.notification.config;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;

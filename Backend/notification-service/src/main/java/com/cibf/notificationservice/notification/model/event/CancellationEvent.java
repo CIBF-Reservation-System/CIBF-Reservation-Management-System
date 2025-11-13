@@ -1,4 +1,4 @@
-package lk.bookfair.notification.model.event;
+package com.cibf.notificationservice.notification.model.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

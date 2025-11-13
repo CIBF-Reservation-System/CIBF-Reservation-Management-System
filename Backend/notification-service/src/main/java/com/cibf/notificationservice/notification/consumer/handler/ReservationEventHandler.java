@@ -1,9 +1,9 @@
-package lk.bookfair.notification.consumer.handler;
+package com.cibf.notificationservice.notification.consumer.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lk.bookfair.notification.model.event.ReservationEvent;
-import lk.bookfair.notification.service.NotificationService;
+import com.cibf.notificationservice.notification.model.event.ReservationEvent;
+import com.cibf.notificationservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,9 @@
-package lk.bookfair.notification.service;
+package com.cibf.notificationservice.notification.service;
 
 import jakarta.mail.internet.MimeMessage;
-import lk.bookfair.notification.model.event.ReservationEvent;
-import lk.bookfair.notification.model.event.RegistrationEvent;
+import com.cibf.notificationservice.notification.model.event.ReservationEvent;
+import com.cibf.notificationservice.notification.model.event.RegistrationEvent;
+import com.cibf.notificationservice.notification.model.event.CancellationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+
+    private static final String FROM_EMAIL = "noreply@colombobookfair.lk";
 
     @Value("${app.email.from}")
     private String fromEmail;
@@ -103,7 +106,7 @@ public class EmailService {
 
             helper.setFrom(fromEmail, fromName);
             helper.setTo(event.getEmail());
-            helper.setSubject("🎉 Welcome to Colombo International Bookfair");
+            helper.setSubject(" Welcome to Colombo International Bookfair");
 
             Context context = new Context();
             context.setVariable("userName", event.getUserName());

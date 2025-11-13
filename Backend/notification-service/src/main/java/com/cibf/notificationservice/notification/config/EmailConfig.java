@@ -1,4 +1,4 @@
-package lk.bookfair.notification.config;
+package com.cibf.notificationservice.notification.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

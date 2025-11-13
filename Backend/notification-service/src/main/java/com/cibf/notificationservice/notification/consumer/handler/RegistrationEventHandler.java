@@ -1,8 +1,8 @@
-package lk.bookfair.notification.consumer.handler;
+package com.cibf.notificationservice.notification.consumer.handler;
 
 import com.google.gson.Gson;
-import lk.bookfair.notification.model.event.RegistrationEvent;
-import lk.bookfair.notification.service.NotificationService;
+import com.cibf.notificationservice.notification.model.event.RegistrationEvent;
+import com.cibf.notificationservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

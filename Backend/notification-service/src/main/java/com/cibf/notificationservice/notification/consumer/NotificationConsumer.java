@@ -1,7 +1,7 @@
-package lk.bookfair.notification.consumer;
+package com.cibf.notificationservice.notification.consumer;
 
-import lk.bookfair.notification.consumer.handler.RegistrationEventHandler;
-import lk.bookfair.notification.consumer.handler.ReservationEventHandler;
+import com.cibf.notificationservice.notification.consumer.handler.RegistrationEventHandler;
+import com.cibf.notificationservice.notification.consumer.handler.ReservationEventHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,6 +18,7 @@ public class NotificationConsumer {
 
     private final ReservationEventHandler reservationEventHandler;
     private final RegistrationEventHandler registrationEventHandler;
+    private final CancellationEventHandler cancellationEventHandler;
 
     @KafkaListener(
             topics = "${app.kafka.topics.reservation}",

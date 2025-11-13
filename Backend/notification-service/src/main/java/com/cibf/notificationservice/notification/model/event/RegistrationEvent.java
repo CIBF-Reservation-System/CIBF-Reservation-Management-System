@@ -1,4 +1,4 @@
-package lk.bookfair.notification.model.event;
+package com.cibf.notificationservice.notification.model.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
