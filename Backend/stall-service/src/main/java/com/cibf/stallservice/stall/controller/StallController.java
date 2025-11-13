@@ -61,6 +61,17 @@ public class StallController {
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
+         try {
+             StallDTO updatedStall = stallService.updateStall(stallId, stallDTO);
+             Map<String, Object> response = new HashMap<>();
+             response.put("message", "Stall updated successfully");
+             response.put("stall", updatedStall);
+             return ResponseEntity.ok(response);
+         } catch (RuntimeException e) {
+             Map<String, Object> error = new HashMap<>();
+             error.put("error", e.getMessage());
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+         }
     }
 
     @DeleteMapping("/deletestall/{stallId}")

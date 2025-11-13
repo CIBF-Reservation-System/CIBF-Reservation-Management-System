@@ -2,23 +2,28 @@ package com.cibf.stallservice.stall.dto;
 
 
 import com.cibf.stallservice.stall.model.StallSize;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
+
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StallDTO {
-    private UUID stallId;  // Unique identifier (UUID)
-    private String label; // e.g., "A1", "B2"
+    private UUID stallId; 
+    private String label; 
     @Enumerated(EnumType.STRING)
-    private StallSize stallSize; // SMALL, MEDIUM, LARGE
-    private double price; // e.g., 15000, 25000, etc.
-    private int availability; // true or false
+    private StallSize stallSize;
+    private double price; 
+    private int availability;
     private String area;
 }
+
+
+
