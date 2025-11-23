@@ -50,8 +50,7 @@ import { toast } from "sonner";
 import { Stall, StallSize } from "@/components/StallCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { reservationService } from "@/services/reservationService";
-import { stallService } from "@/services/stallService";
+import { adminService } from "@/services/adminService";
 
 // Reservation interface
 interface Reservation {
@@ -91,48 +90,57 @@ export default function OrganizerDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [areaFilter, setAreaFilter] = useState<string>("all");
-  const [stalls, setStalls] = useState<Stall[]>(mockStallsForManagement);
+  const [stalls, setStalls] = useState<Stall[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const [stallsMap, setStallsMap] = useState<Record<string, Stall>>({});
 
   const { logout } = useAuth();
-  const navigate = useNavigate();
-
+  import { adminService } from "@/services/adminService";
   const handleLogout = () => {
     logout();
     navigate("/auth");
   };
 
-  // Fetch reservations from backend
+  // Fetch data from backend
   useEffect(() => {
-    const fetchReservationsAndStalls = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch reservations
-        const reservationsData = await reservationService.getAllReservations();
-        setReservations(reservationsData);
+        // Fetch dashboard stats
+        const stats = await adminService.getDashboardStats();
+        setDashboardStats(stats);
 
-        // Fetch all stalls
-        const stallsData = await stallService.getAllStalls();
+        // Fetch stalls
+        const stallsData = await adminService.getAllStalls(
+          areaFilter,
+          statusFilter
+        );
         setStalls(stallsData);
+
+        // Fetch reservations
+        const reservationsData = await adminService.getAllReservations(
+          statusFilter
+        );
+        setReservations(reservationsData);
 
         // Build a map: stallId => stall
         const map: Record<string, Stall> = {};
-        stallsData.forEach((stall) => {
+        stallsData.forEach((stall: Stall) => {
           map[stall.id] = stall;
         });
         setStallsMap(map);
       } catch (error) {
-        toast.error("Failed to fetch reservations or stalls");
+        toast.error("Failed to fetch admin dashboard data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReservationsAndStalls();
-  }, []);
+    fetchData();
+  }, [areaFilter, statusFilter]);
 
   // Calculate statistics
   const totalStalls = stalls.length;
@@ -161,7 +169,6 @@ export default function OrganizerDashboard() {
       reservation.businessName
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      
       reservation.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || reservation.status === statusFilter;
@@ -171,7 +178,6 @@ export default function OrganizerDashboard() {
   // Export to CSV
   const handleExportCSV = () => {
     const headers = [
-      
       "Business Name",
       "Email",
       "Phone",
@@ -181,7 +187,6 @@ export default function OrganizerDashboard() {
       "Amount",
     ];
     const rows = reservations.map((r) => [
-     
       r.businessName,
       r.email,
       r.phone,
@@ -213,13 +218,23 @@ export default function OrganizerDashboard() {
   };
 
   // Toggle stall availability
-  const toggleStallAvailability = (stallId: string) => {
-    setStalls((prev) =>
-      prev.map((stall) =>
-        stall.id === stallId ? { ...stall, available: !stall.available } : stall
-      )
-    );
-    toast.success("Stall status updated");
+  const toggleStallAvailability = async (stallId: string) => {
+    try {
+      const stall = stalls.find((s) => s.id === stallId);
+      if (!stall) return;
+      const updated = await adminService.updateStallAvailability(
+        stallId,
+        !stall.available
+      );
+      setStalls((prev) =>
+        prev.map((s) =>
+          s.id === stallId ? { ...s, available: !s.available } : s
+        )
+      );
+      toast.success("Stall status updated");
+    } catch {
+      toast.error("Failed to update stall status");
+    }
   };
 
   // Filter stalls by area
@@ -403,7 +418,6 @@ export default function OrganizerDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                   
                     <TableHead>Business</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Stalls</TableHead>
@@ -429,7 +443,6 @@ export default function OrganizerDashboard() {
                   ) : (
                     filteredReservations.map((reservation) => (
                       <TableRow key={reservation.id}>
-                        
                         <TableCell className="font-medium">
                           {reservation.businessName}
                         </TableCell>
@@ -443,16 +456,15 @@ export default function OrganizerDashboard() {
                         </TableCell>
 
                         <TableCell>
-  {reservation.stalls && reservation.stalls.length > 0
-    ? reservation.stalls
-        .map((stallId) => {
-          const stall = stallsMap[stallId];
-          return stall ? stall.label : stallId;
-        })
-        .join(", ")
-    : "—"}
-</TableCell>
-
+                          {reservation.stalls && reservation.stalls.length > 0
+                            ? reservation.stalls
+                                .map((stallId) => {
+                                  const stall = stallsMap[stallId];
+                                  return stall ? stall.label : stallId;
+                                })
+                                .join(", ")
+                            : "—"}
+                        </TableCell>
 
                         <TableCell>
                           {new Date(reservation.date).toLocaleDateString()}
