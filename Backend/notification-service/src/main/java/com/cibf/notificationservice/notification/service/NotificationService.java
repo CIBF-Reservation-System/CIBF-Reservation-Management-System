@@ -1,10 +1,11 @@
-package lk.bookfair.notification.service;
+package com.cibf.notificationservice.notification.service;
 
-import lk.bookfair.notification.model.entity.NotificationLog;
-import lk.bookfair.notification.model.enums.NotificationType;
-import lk.bookfair.notification.model.event.RegistrationEvent;
-import lk.bookfair.notification.model.event.ReservationEvent;
-import lk.bookfair.notification.repository.NotificationLogRepository;
+import com.cibf.notificationservice.notification.model.entity.NotificationLog;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.model.event.RegistrationEvent;
+import com.cibf.notificationservice.notification.model.event.ReservationEvent;
+import com.cibf.notificationservice.notification.model.event.CancellationEvent;
+import com.cibf.notificationservice.notification.repository.NotificationLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,6 @@ public class NotificationService {
 
         log.info(" Processing reservation notification for: {}", event.getReservationId());
 
-
         NotificationLog notificationLog = NotificationLog.builder()
                 .recipientEmail(event.getUserEmail())
                 .recipientName(event.getUserName())
@@ -36,7 +36,6 @@ public class NotificationService {
                 .referenceId(event.getReservationId())
                 .status("PENDING")
                 .build();
-
 
         notificationLog = notificationLogRepository.save(notificationLog); //save to MySQL
 
@@ -57,7 +56,6 @@ public class NotificationService {
 
             log.info(" Email sent successfully");
 
-
             notificationLog.setStatus("SENT");
             notificationLog.setSentAt(LocalDateTime.now());
             notificationLog.setMessage("Reservation confirmation sent with QR code");
@@ -76,6 +74,55 @@ public class NotificationService {
             notificationLogRepository.save(notificationLog);
 
             log.error(" Notification log updated to FAILED");
+        }
+    }
+
+    @Transactional
+    public void processCancellationNotification(CancellationEvent event) {
+
+        log.info(" Processing cancellation notification");
+        log.info("Reservation ID: {}", event.getReservationId());
+        log.info("User: {} ({})", event.getUserName(), event.getUserEmail());
+        log.info("Cancelled Stalls: {}", event.getStalls().size());
+
+        NotificationLog notificationLog = NotificationLog.builder()
+                .recipientEmail(event.getUserEmail())
+                .recipientName(event.getUserName())
+                .notificationType(NotificationType.RESERVATION_CANCELLATION)
+                .subject(" Reservation Cancelled - " + event.getBusinessName())
+                .status("PENDING")
+                .referenceId(event.getReservationId())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationLog = notificationLogRepository.save(notificationLog);
+        log.info(" Database log created with ID: {}", notificationLog.getId());
+
+        try {
+            // Send cancellation email
+            emailService.sendCancellationNotification(event);
+            log.info(" Cancellation email sent successfully");
+
+            // Update database log
+            notificationLog.setStatus("SENT");
+            notificationLog.setSentAt(LocalDateTime.now());
+            notificationLog.setMessage(String.format(
+                    "Cancellation notification sent for %d stall(s). Refund: LKR %.2f",
+                    event.getStalls().size(),
+                    event.getTotalAmount()
+            ));
+
+            notificationLogRepository.save(notificationLog);
+            log.info(" Database log updated to SENT");
+
+        } catch (Exception e) {
+            log.error(" Error processing cancellation notification", e);
+
+            notificationLog.setStatus("FAILED");
+            notificationLog.setErrorMessage(e.getMessage());
+            notificationLogRepository.save(notificationLog);
+
+            throw new RuntimeException("Failed to process cancellation notification", e);
         }
     }
 

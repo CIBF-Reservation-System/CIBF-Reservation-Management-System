@@ -1,7 +1,7 @@
-package lk.bookfair.notification.model.entity;
+package com.cibf.notificationservice.notification.model.entity;
 
 import jakarta.persistence.*;
-import lk.bookfair.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

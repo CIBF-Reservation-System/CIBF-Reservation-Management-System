@@ -1,15 +1,11 @@
-
-
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# Maven logs
 maven-wrapper.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
-
 
 .idea/
 *.iws
@@ -18,14 +14,12 @@ maven-wrapper.properties
 out/
 .idea_modules/
 
-# User-specific IntelliJ files
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
 
-# Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.local.xml
@@ -33,7 +27,6 @@ out/
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-
 
 .apt_generated
 .classpath
@@ -56,8 +49,6 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-
-# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -76,7 +67,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Windows
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
@@ -91,15 +81,11 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 
-# Linux
 *~
 .nfs*
 
-
-# Spring Boot DevTools
 .spring-boot-devtools.properties
 
-# Spring Boot Actuator sensitive endpoints
 application-local.properties
 application-dev.properties
 application-prod.properties
@@ -157,13 +143,13 @@ yarn.lock
 *.cache
 .cache/
 
-# Application properties with sensitive data
+application.properties
+application.yml
 application-secret.properties
 application-prod.yml
 secrets.yml
 secrets.properties
 
-# Certificate files
 *.key
 *.pem
 *.p12
@@ -176,12 +162,8 @@ htmlcov/
 coverage/
 .pytest_cache/
 
-
-
 docs/_build/
 docs/.build/
-
-
 
 *.backup
 *.old
@@ -189,18 +171,15 @@ docs/.build/
 *-backup
 *-old
 
-
 qr-codes/
 generated-qr/
 *.qr
 
 *.html.backup
 
-# TODO files (personal notes)
 TODO.txt
 NOTES.txt
 personal-notes.md
 
-# Test data
 test-data/
 sample-data/

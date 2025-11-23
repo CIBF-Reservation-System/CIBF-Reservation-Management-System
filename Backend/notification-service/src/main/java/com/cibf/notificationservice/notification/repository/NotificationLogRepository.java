@@ -1,7 +1,7 @@
-package lk.bookfair.notification.repository;
+package com.cibf.notificationservice.notification.repository;
 
-import lk.bookfair.notification.model.entity.NotificationLog;
-import lk.bookfair.notification.model.enums.NotificationType;
+import com.cibf.notificationservice.notification.model.entity.NotificationLog;
+import com.cibf.notificationservice.notification.model.enums.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
