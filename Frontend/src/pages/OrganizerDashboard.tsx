@@ -98,7 +98,7 @@ export default function OrganizerDashboard() {
   const [stallsMap, setStallsMap] = useState<Record<string, Stall>>({});
 
   const { logout } = useAuth();
-  import { adminService } from "@/services/adminService";
+  const navigate = useNavigate();
   const handleLogout = () => {
     logout();
     navigate("/auth");
