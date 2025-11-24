@@ -18,8 +18,8 @@ import java.util.UUID;
 public class UserServiceClientFallback implements UserServiceClient {
 
     @Override
-    public ResponseEntity<List<UserServiceDTO>> getAllUsers() {
-        log.error("User Service is unavailable - getAllUsers fallback triggered");
+    public ResponseEntity<List<UserServiceDTO>> getAllUsers(int page, int size) {
+        log.error("User Service is unavailable - getAllUsers fallback triggered (page={}, size={})", page, size);
         return ResponseEntity.status(503).body(new ArrayList<>());
     }
 
