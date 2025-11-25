@@ -124,7 +124,9 @@ public class AdminService {
 
     public Object getAllStalls() {
         try {
-            return stallServiceClient.getAllStalls();
+
+            return stallServiceClient.getAllStalls().getBody();
+
         } catch (Exception e) {
             throw new ServiceUnavailableException("Stall service is unavailable");
         }
@@ -145,37 +147,13 @@ public class AdminService {
         }
     }
 
-    public Object approveStall(UUID stallId) {
-        try {
-            return stallServiceClient.approveStall(stallId);
-        } catch (Exception e) {
-            throw new ServiceUnavailableException("Stall service is unavailable");
-        }
-    }
-
-    public Object rejectStall(UUID stallId, String reason) {
-        try {
-            return stallServiceClient.rejectStall(stallId, reason);
-        } catch (Exception e) {
-            throw new ServiceUnavailableException("Stall service is unavailable");
-        }
-    }
-
-    private Object getStallStatistics() {
-        try {
-            return stallServiceClient.getStallStatistics();
-        } catch (Exception e) {
-            return new HashMap<>();
-        }
-    }
-
     // ==================== RESERVATION MANAGEMENT ====================
     public Object getAllReservations(String status, int page, int size) {
         try {
             if (status != null && !status.isEmpty()) {
                 return reservationServiceClient.getReservationsByStatus(status);
             }
-            return reservationServiceClient.getAllReservations();
+            return reservationServiceClient.getAllReservations().getBody();
         } catch (Exception e) {
             throw new ServiceUnavailableException("Reservation service is unavailable");
         }
@@ -183,7 +161,7 @@ public class AdminService {
 
     public Object getReservationById(UUID reservationId) {
         try {
-            return reservationServiceClient.getReservationById(reservationId);
+            return reservationServiceClient.getReservationById(reservationId).getBody();
         } catch (Exception e) {
             throw new ResourceNotFoundException("Reservation not found");
         }
@@ -222,41 +200,42 @@ public class AdminService {
         }
     }
 
-    // ==================== SYSTEM HEALTH ====================
 
+
+    // ==================== SYSTEM HEALTH ====================
     public Object getSystemHealth() {
-        
+
         Map<String, Object> healthStatus = new HashMap<>();
         healthStatus.put("adminService", "UP");
-        
+
+        // User service health
         try {
             userServiceClient.healthCheck();
             healthStatus.put("userService", "UP");
         } catch (Exception e) {
             healthStatus.put("userService", "DOWN");
         }
-        
-        try {
-            stallServiceClient.healthCheck();
-            healthStatus.put("stallService", "UP");
-        } catch (Exception e) {
-            healthStatus.put("stallService", "DOWN");
-        }
-        
+
+        // Stall service health (skip healthCheck)
+        healthStatus.put("stallService", "UNKNOWN"); // or "UP" if you want
+
+        // Reservation service health
         try {
             reservationServiceClient.healthCheck();
             healthStatus.put("reservationService", "UP");
         } catch (Exception e) {
             healthStatus.put("reservationService", "DOWN");
         }
-        
+
+        // Notification service health
         try {
             notificationServiceClient.healthCheck();
             healthStatus.put("notificationService", "UP");
         } catch (Exception e) {
             healthStatus.put("notificationService", "DOWN");
         }
-        
+
         return healthStatus;
     }
+
 }
