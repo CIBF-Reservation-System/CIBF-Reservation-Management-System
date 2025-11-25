@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequestMapping
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"}, allowedHeaders = "*", allowCredentials = "true")
 @Tag(name = "Admin Management", description = "Unified admin dashboard and management endpoints")
 public class AdminController {
 
