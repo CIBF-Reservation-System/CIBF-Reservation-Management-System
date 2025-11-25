@@ -15,7 +15,6 @@ This project allows users (publishers/vendors and organizers/employees) to manag
 - Notifications via email/SMS
 - Admin operations for monitoring and managing users, stalls, and reservations
 - API Gateway for routing and centralized access
-- Service Registry for service discovery
 
 ---
 
@@ -32,7 +31,7 @@ This project allows users (publishers/vendors and organizers/employees) to manag
 | Notification Service      | Sends notifications (email/SMS) and logs notifications                     |
 | Admin Service             | Manages users, stalls, reservations, and sends admin alerts                |
 | API Gateway               | Routes requests from frontend to microservices, handles authentication      |
-| Service Registry          | Eureka server for service discovery                                         |
+
 
 ---
 
@@ -58,20 +57,16 @@ cd CIBF-Reservation-Management-System/Backend
 
 - Update application.properties for each microservice with your database credentials.
 
-### **3. Run Service Registry**
-```bash
-cd service-registry
-mvn spring-boot:run
-```
 
-### **4. Run API Gateway**
+
+### **3. Run API Gateway**
 ```bash
 cd api-gateway
 mvn spring-boot:run
 ```
 
 
-### **5. Run other microservices**
+### **4. Run other microservices**
 
 - Auth-User Service
 - Stall Service
@@ -79,7 +74,7 @@ mvn spring-boot:run
 - Notification Service
 - Admin Service
 
-### **6. Frontend**
+### **5. Frontend**
 
 - Build and serve React frontend separately:
 ```bash

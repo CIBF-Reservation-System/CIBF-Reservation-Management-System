@@ -23,7 +23,10 @@ import java.util.UUID;
 @RequestMapping
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
+
+//@CrossOrigin(origins = "*", allowedHeaders = "*", allowCredentials = "true")
+
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"}, allowedHeaders = "*", allowCredentials = "true")
 @Tag(name = "Admin Management", description = "Unified admin dashboard and management endpoints")
 public class AdminController {
 
@@ -168,33 +171,8 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Stall availability updated successfully", stall));
     }
 
-    /**
-     * Approve stall
-     * POST /api/v1/admin/stalls/{stallId}/approve
-     */
-    @PostMapping("/stalls/{stallId}/approve")
-    @Operation(summary = "Approve stall", description = "Approve a pending stall")
-    public ResponseEntity<ApiResponse<?>> approveStall(
-            @PathVariable @Parameter(description = "Stall ID") UUID stallId) {
-        log.info("POST /stalls/{}/approve - Approving stall", stallId);
-        Object stall = adminService.approveStall(stallId);
-        return ResponseEntity.ok(ApiResponse.success("Stall approved successfully", stall));
-    }
 
-    /**
-     * Reject stall
-     * POST /api/v1/admin/stalls/{stallId}/reject
-     */
-    @PostMapping("/stalls/{stallId}/reject")
-    @Operation(summary = "Reject stall", description = "Reject a pending stall")
-    public ResponseEntity<ApiResponse<?>> rejectStall(
-            @PathVariable @Parameter(description = "Stall ID") UUID stallId,
-            @RequestBody(required = false) @Parameter(description = "Rejection reason") Map<String, String> body) {
-        String reason = body != null ? body.get("reason") : "No reason provided";
-        log.info("POST /stalls/{}/reject - Rejecting stall with reason: {}", stallId, reason);
-        Object stall = adminService.rejectStall(stallId, reason);
-        return ResponseEntity.ok(ApiResponse.success("Stall rejected successfully", stall));
-    }
+
 
     // ==================== RESERVATION MANAGEMENT ====================
 

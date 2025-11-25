@@ -1,9 +1,11 @@
+
 package com.cibf.adminservice.admin.Util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +18,9 @@ import java.util.function.Function;
  * Admin service does not generate its own tokens - it validates tokens from user-service
  */
 @Component
-@Slf4j
 public class JwtUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${jwt.secret}")
     private String secret;
@@ -42,13 +45,11 @@ public class JwtUtil {
      */
     public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
-        // User-service JWT contains 'roleName' claim
+        // Accept both 'role' and 'roleName' for compatibility
+        String role = claims.get("role", String.class);
+        if (role != null) return role;
         String roleName = claims.get("roleName", String.class);
-        if (roleName != null) {
-            return roleName;
-        }
-        // Fallback to 'role' if roleName not present
-        return claims.get("role", String.class);
+        return roleName;
     }
 
     /**
@@ -92,22 +93,7 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    /**
-     * Validate JWT token
-     */
-    public Boolean validateToken(String token, String username) {
-        try {
-            final String extractedUsername = extractUsername(token);
-            return (extractedUsername.equals(username) && !isTokenExpired(token));
-        } catch (Exception e) {
-            log.error("Token validation failed: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Validate token without username check
-     */
+    // Only validate tokens, never generate
     public Boolean validateToken(String token) {
         try {
             return !isTokenExpired(token);

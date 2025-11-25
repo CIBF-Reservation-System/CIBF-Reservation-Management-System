@@ -52,49 +52,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { reservationService } from "@/services/reservationService";
 import { stallService } from "@/services/stallService";
+import { userService } from "@/services/userService";
 
 // Reservation interface
 interface Reservation {
   id: string;
-  reference: string;
+  reference?: string;
   businessName: string;
   email: string;
   phone: string;
   stalls: string[];
   date: string;
   status: "confirmed" | "pending" | "cancelled";
-  totalAmount: number;
+  totalAmount?: number;
 }
-
-// Mock stalls data for management grid
-const mockStallsForManagement: Stall[] = Array.from({ length: 30 }, (_, i) => {
-  const stallNumber = i + 1;
-  const label = `${String.fromCharCode(65 + Math.floor(i / 10))}${
-    stallNumber % 10 || 10
-  }`;
-  const sizes: StallSize[] = ["Small", "Medium", "Large"];
-  const size = sizes[i % 3];
-  const prices = { Small: 50000, Medium: 85000, Large: 120000 };
-  const areas = ["Hall A", "Hall B", "Outdoor"];
-
-  return {
-    id: `stall-${i + 1}`,
-    label,
-    size,
-    price: prices[size],
-    available: Math.random() > 0.3,
-    area: areas[Math.floor(i / 10)],
-  };
-});
 
 export default function OrganizerDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [areaFilter, setAreaFilter] = useState<string>("all");
-  const [stalls, setStalls] = useState<Stall[]>(mockStallsForManagement);
+  const [stalls, setStalls] = useState<Stall[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [stallsMap, setStallsMap] = useState<Record<string, Stall>>({});
 
   const { logout } = useAuth();
@@ -105,45 +84,121 @@ export default function OrganizerDashboard() {
     navigate("/auth");
   };
 
-  // Fetch reservations from backend
+  // Fetch stalls from backend
   useEffect(() => {
-    const fetchReservationsAndStalls = async () => {
+    const fetchStalls = async () => {
+      try {
+        const data = await stallService.getAllStalls();
+
+        // Map availability from 0/1 to boolean: 1 is available (true), 0 is reserved (false)
+        const mappedStalls = data.map((stall: any) => ({
+          ...stall,
+          available: stall.availability === 1, // true if 1, false if 0 (Reserved)
+          id: stall.stallId, // ensure 'id' matches what your code uses
+        }));
+
+        setStalls(mappedStalls);
+      } catch (err) {
+        console.error("Failed to fetch stalls", err);
+        toast.error("Failed to fetch stalls");
+      }
+    };
+
+    fetchStalls();
+  }, []);
+
+  // Fetch reservations from backend, relies on stalls state being fetched
+  useEffect(() => {
+    if (stalls.length === 0) return; // Wait until stalls are fetched
+
+    const fetchReservationsWithDetails = async () => {
       setLoading(true);
       try {
-        // Fetch reservations
         const reservationsData = await reservationService.getAllReservations();
-        setReservations(reservationsData);
 
-        // Fetch all stalls
-        const stallsData = await stallService.getAllStalls();
-        setStalls(stallsData);
+        // Create initial stall map from the stalls state
+        const stallsMapTemp: Record<string, Stall> = {};
 
-        // Build a map: stallId => stall
-        const map: Record<string, Stall> = {};
-        stallsData.forEach((stall) => {
-          map[stall.id] = stall;
+        // Use the already fetched stall data to build the map
+        stalls.forEach(stall => {
+          stallsMapTemp[stall.id] = stall;
         });
-        setStallsMap(map);
+
+        const reservationsWithDetails = await Promise.all(
+          reservationsData.map(async (res: any) => {
+            let stallId = res.stallId;
+            let stallLabel = stallsMapTemp[stallId]?.label || "-";
+
+            // If the stall details were not in the initial stalls fetch (unlikely if getAllStalls is complete),
+            // you might need this logic, but ideally you rely on the initial fetch.
+            // Since you were calling getStallById, I'll keep the structure but prefer the local map.
+            if (!stallsMapTemp[stallId]) {
+              try {
+                const stallResp = await stallService.getStallById(stallId);
+                if (stallResp) {
+                  stallLabel = stallResp.label || "-";
+                  stallsMapTemp[stallId] = {
+                    ...stallResp,
+                    available: stallResp.availability === 1,
+                    id: stallResp.stallId,
+                  };
+                }
+              } catch (err) {
+                console.error("Failed to fetch stall", stallId, err);
+              }
+            }
+
+
+            let contactPerson = "-";
+            let businessName = res.businessName || "-";
+            let email = res.email || "-";
+            let phone = res.phoneNumber || "-";
+
+            try {
+              const userResp = await userService.getUserById(res.userId);
+              contactPerson = userResp.contactPerson || "-";
+              businessName = userResp.businessName || businessName;
+              email = userResp.email || email;
+              phone = userResp.phone || phone;
+            } catch (err) {
+              console.error("Failed to fetch user", res.userId, err);
+            }
+
+            return {
+              id: res.reservationId,
+              stalls: [stallId], // store stallId
+              contactPerson,
+              businessName,
+              email,
+              phone,
+              date: new Date(res.reservationDate).toLocaleDateString(),
+              status: res.status,
+            };
+          })
+        );
+
+        // Update stallsMap only with the current reservation details for display in the table
+        setStallsMap(stallsMapTemp);
+        setReservations(reservationsWithDetails);
       } catch (error) {
+        console.error(error);
         toast.error("Failed to fetch reservations or stalls");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReservationsAndStalls();
-  }, []);
+    fetchReservationsWithDetails();
+  }, [stalls]); // Dependency on stalls ensures reservations are fetched after stalls
 
-  // Calculate statistics
+  // Statistics - Logic is CORRECT, it depends on the 'stalls' state being correctly set
   const totalStalls = stalls.length;
-  const reservedStalls = stalls.filter((s) => !s.available).length;
+  // Reserved stalls are those where 'available' is false (availability = 0)
+  const reservedStalls = stalls.filter((s) => !s.available).length; 
   const availableStalls = totalStalls - reservedStalls;
-  const reservedPercentage = ((reservedStalls / totalStalls) * 100).toFixed(1);
-  const newReservations = reservations.filter(
-    (r) => r.status === "pending"
-  ).length;
+  const reservedPercentage = totalStalls > 0 ? ((reservedStalls / totalStalls) * 100).toFixed(1) : "0.0";
+  const newReservations = reservations.filter((r) => r.status === "pending").length;
 
-  // Occupancy by area data
   const occupancyData = ["Hall A", "Hall B", "Outdoor"].map((area) => ({
     area,
     reserved: stalls.filter((s) => s.area === area && !s.available).length,
@@ -155,77 +210,62 @@ export default function OrganizerDashboard() {
     { name: "Available", value: availableStalls, color: "#FF8A4B" },
   ];
 
-  // Filter reservations based on search and status
   const filteredReservations = reservations.filter((reservation) => {
     const matchesSearch =
       reservation.businessName
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      
       reservation.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || reservation.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  // Export to CSV
+  // Export CSV
   const handleExportCSV = () => {
-    const headers = [
-      
-      "Business Name",
-      "Email",
-      "Phone",
-      "Stalls",
-      "Date",
-      "Status",
-      "Amount",
-    ];
+    const headers = ["Business Name", "Email", "Phone", "Stalls", "Date", "Status"];
     const rows = reservations.map((r) => [
-     
       r.businessName,
       r.email,
       r.phone,
-      r.stalls.join("; "),
+      r.stalls
+        .map((stallId) => stallsMap[stallId]?.label || stallId)
+        .join("; "),
       r.date,
       r.status,
-      r.totalAmount.toString(),
     ]);
-
-    const csvContent = [headers, ...rows]
-      .map((row) => row.join(","))
-      .join("\n");
+    const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `reservations-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    link.download = `reservations-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
 
     toast.success("CSV exported successfully");
   };
 
-  // Print QR codes
   const handlePrintQR = () => {
     toast.info("QR codes print dialog opened");
   };
 
-  // Toggle stall availability
   const toggleStallAvailability = (stallId: string) => {
+    // Optimistic UI update
     setStalls((prev) =>
       prev.map((stall) =>
         stall.id === stallId ? { ...stall, available: !stall.available } : stall
       )
     );
+    // You should also call an API service here to persist this change
+    // e.g., stallService.updateStallAvailability(stallId, !stall.available);
+
     toast.success("Stall status updated");
   };
 
-  // Filter stalls by area
-  const filteredStalls = stalls.filter((stall) => {
-    return areaFilter === "all" || stall.area === areaFilter;
-  });
+  const filteredStalls = stalls.filter(
+    (stall) => areaFilter === "all" || stall.area === areaFilter
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -242,12 +282,10 @@ export default function OrganizerDashboard() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handlePrintQR}>
-              <Printer className="h-4 w-4 mr-2" />
-              Print QR
+              <Printer className="h-4 w-4 mr-2" /> Print QR
             </Button>
             <Button variant="default" onClick={handleExportCSV}>
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
+              <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
             <Button variant="destructive" onClick={handleLogout}>
               Logout
@@ -259,16 +297,12 @@ export default function OrganizerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Stalls
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total Stalls</CardTitle>
               <LayoutGrid className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{totalStalls}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Across all areas
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Across all areas</p>
             </CardContent>
           </Card>
 
@@ -292,24 +326,18 @@ export default function OrganizerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{availableStalls}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Ready to reserve
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Ready to reserve</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                New Reservations
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">New Reservations</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{newReservations}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Pending confirmation
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Pending confirmation</p>
             </CardContent>
           </Card>
         </div>
@@ -319,9 +347,7 @@ export default function OrganizerDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Occupancy by Area</CardTitle>
-              <CardDescription>
-                Reserved vs Available stalls per area
-              </CardDescription>
+              <CardDescription>Reserved vs Available stalls per area</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -341,9 +367,7 @@ export default function OrganizerDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Overall Occupancy</CardTitle>
-              <CardDescription>
-                Distribution of stall availability
-              </CardDescription>
+              <CardDescription>Distribution of stall availability</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -353,7 +377,12 @@ export default function OrganizerDashboard() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={(entry) => `${entry.name}: ${entry.value}`}
+                    // Updated label to show percentage and value only if totalStalls > 0
+                    label={({ name, value, percent }) => 
+                      totalStalls > 0 
+                      ? `${name}: ${value} (${(percent * 100).toFixed(1)}%)` 
+                      : `${name}: 0 (0%)`
+                    }
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
@@ -362,7 +391,7 @@ export default function OrganizerDashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value, name) => [value, name]} />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -403,59 +432,53 @@ export default function OrganizerDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                   
                     <TableHead>Business</TableHead>
-                    <TableHead>Contact</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Mobile</TableHead>
                     <TableHead>Stalls</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         Loading reservations...
                       </TableCell>
                     </TableRow>
                   ) : filteredReservations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center">
+                      <TableCell colSpan={6} className="text-center">
                         No reservations found
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredReservations.map((reservation) => (
                       <TableRow key={reservation.id}>
-                        
                         <TableCell className="font-medium">
                           {reservation.businessName}
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <div>{reservation.email}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
                             <div className="text-muted-foreground">
                               {reservation.phone}
                             </div>
                           </div>
                         </TableCell>
-
                         <TableCell>
-  {reservation.stalls && reservation.stalls.length > 0
-    ? reservation.stalls
-        .map((stallId) => {
-          const stall = stallsMap[stallId];
-          return stall ? stall.label : stallId;
-        })
-        .join(", ")
-    : "—"}
-</TableCell>
-
-
+                          {reservation.stalls
+                            .map((stallId) => stallsMap[stallId]?.label || stallId)
+                            .join(", ")}
+                        </TableCell>
                         <TableCell>
-                          {new Date(reservation.date).toLocaleDateString()}
+                          {/* Note: reservation.date is already a formatted string, no need to call new Date().toLocaleDateString() again */}
+                          {reservation.date} 
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -469,19 +492,6 @@ export default function OrganizerDashboard() {
                           >
                             {reservation.status}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          LKR {(reservation.totalAmount ?? 0).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              View
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              Email
-                            </Button>
-                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -497,7 +507,7 @@ export default function OrganizerDashboard() {
           <CardHeader>
             <CardTitle>Stall Management</CardTitle>
             <CardDescription>
-              Click stalls to toggle between Available / Reserved / Blocked
+              Click stalls to toggle between Available / Reserved
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -536,12 +546,12 @@ export default function OrganizerDashboard() {
 
             <div className="flex gap-4 mt-6 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded border-2 border-primary bg-primary/10"></div>
-                <span>Available</span>
+                <span className="w-4 h-4 block bg-primary/70 rounded-sm border" />
+                Available
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded border-2 border-muted bg-muted"></div>
-                <span>Reserved</span>
+                <span className="w-4 h-4 block bg-muted rounded-sm border" />
+                Reserved
               </div>
             </div>
           </CardContent>

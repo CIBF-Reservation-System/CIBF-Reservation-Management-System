@@ -12,68 +12,89 @@ import java.util.UUID;
  * Feign Client for User Service
  * Communicates with user-service to fetch user data
  */
-@FeignClient(
-        name = "user-service",
-        url = "${spring.cloud.openfeign.client.config.user-service.url}",
-        fallback = UserServiceClientFallback.class
-)
+//@FeignClient(
+//        name = "user-service",
+//        url = "${spring.cloud.openfeign.client.config.user-service.url}",
+//        fallback = UserServiceClientFallback.class
+//)
+//public interface UserServiceClient {
+//
+//    /**
+//     * Get all users from user service
+//     */
+//    @GetMapping("/api/v1/users")
+//    ResponseEntity<List<UserServiceDTO>> getAllUsers(
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "20") int size
+//    );
+//
+//    /**
+//     * Get user by ID
+//     */
+//    @GetMapping("/api/v1/users/{userId}")
+//    ResponseEntity<UserServiceDTO> getUserById(@PathVariable("userId") UUID userId);
+//
+//    /**
+//     * Get current user profile
+//     */
+//    @GetMapping("/api/v1/auth/profile")
+//    ResponseEntity<UserServiceDTO> getCurrentUserProfile(@RequestHeader("Authorization") String token);
+//
+//    /**
+//     * Update user status (enable/disable)
+//     */
+//    @PatchMapping("/api/v1/users/{userId}/status")
+//    ResponseEntity<UserServiceDTO> updateUserStatus(
+//            @PathVariable("userId") UUID userId,
+//            @RequestParam("isActive") Boolean isActive
+//    );
+//
+//    /**
+//     * Update user role
+//     */
+//    @PatchMapping("/api/v1/users/{userId}/role")
+//    ResponseEntity<UserServiceDTO> updateUserRole(
+//            @PathVariable("userId") UUID userId,
+//            @RequestParam("role") String role
+//    );
+//
+//    /**
+//     * Search users by username or email
+//     */
+//    @GetMapping("/api/v1/users/search")
+//    ResponseEntity<List<UserServiceDTO>> searchUsers(@RequestParam("query") String query);
+//
+//    /**
+//     * Get user statistics
+//     */
+//    @GetMapping("/api/v1/users/statistics")
+//    ResponseEntity<Object> getUserStatistics();
+//
+//    /**
+//     * Health check endpoint
+//     */
+//    @GetMapping("/actuator/health")
+//    ResponseEntity<Object> healthCheck();
+//}
+@FeignClient(name = "user-service", url = "http://localhost:8086/api/v1/user")
 public interface UserServiceClient {
 
-    /**
-     * Get all users from user service
-     */
-    @GetMapping("/api/v1/users")
-    ResponseEntity<List<UserServiceDTO>> getAllUsers(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size
-    );
+    @GetMapping
+    Object getAllUsers(@RequestParam int page, @RequestParam int size);
 
-    /**
-     * Get user by ID
-     */
-    @GetMapping("/api/v1/users/{userId}")
-    ResponseEntity<UserServiceDTO> getUserById(@PathVariable("userId") UUID userId);
+    @GetMapping("/{userId}")
+    Object getUserById(@PathVariable UUID userId);
 
-    /**
-     * Get current user profile
-     */
-    @GetMapping("/api/v1/auth/profile")
-    ResponseEntity<UserServiceDTO> getCurrentUserProfile(@RequestHeader("Authorization") String token);
+    @GetMapping("/search")
+    Object searchUsers(@RequestParam String query);
 
-    /**
-     * Update user status (enable/disable)
-     */
-    @PatchMapping("/api/v1/users/{userId}/status")
-    ResponseEntity<UserServiceDTO> updateUserStatus(
-            @PathVariable("userId") UUID userId,
-            @RequestParam("isActive") Boolean isActive
-    );
+    @PatchMapping("/{userId}/status")
+    Object updateUserStatus(@PathVariable UUID userId, @RequestParam Boolean isActive);
 
-    /**
-     * Update user role
-     */
-    @PatchMapping("/api/v1/users/{userId}/role")
-    ResponseEntity<UserServiceDTO> updateUserRole(
-            @PathVariable("userId") UUID userId,
-            @RequestParam("role") String role
-    );
+    @PatchMapping("/{userId}/role")
+    Object updateUserRole(@PathVariable UUID userId, @RequestParam String role);
 
-    /**
-     * Search users by username or email
-     */
-    @GetMapping("/api/v1/users/search")
-    ResponseEntity<List<UserServiceDTO>> searchUsers(@RequestParam("query") String query);
-
-    /**
-     * Get user statistics
-     */
-    @GetMapping("/api/v1/users/statistics")
-    ResponseEntity<Object> getUserStatistics();
-
-    /**
-     * Health check endpoint
-     */
-    @GetMapping("/actuator/health")
-    ResponseEntity<Object> healthCheck();
+    @GetMapping("/health")
+    Object healthCheck();
 }
 

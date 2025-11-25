@@ -5,8 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+// Removed Lombok imports
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,11 +24,13 @@ import java.util.List;
  * No separate admin authentication - uses user-service JWT with ROLE_ORGANIZER
  */
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtUtil jwtUtil;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -52,31 +53,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             // Extract claims from user-service JWT
             String email = jwtUtil.extractUsername(token);
-            String roleName = jwtUtil.extractRole(token);
-            
+            String role = jwtUtil.extractRole(token);
             // Only ROLE_ORGANIZER can access admin endpoints
-            if (!"ROLE_ORGANIZER".equals(roleName)) {
-                log.debug("Access denied - role {} not authorized for admin endpoints", roleName);
+            if (!"ROLE_ORGANIZER".equals(role)) {
+                log.debug("Access denied - role {} not authorized for admin endpoints", role);
                 filterChain.doFilter(request, response);
                 return;
             }
-
             // Set authentication with ROLE_ORGANIZER authority
-            var authority = new SimpleGrantedAuthority(roleName);
+            var authority = new SimpleGrantedAuthority(role);
             var authentication = new UsernamePasswordAuthenticationToken(
                     email,
                     null,
                     List.of(authority)
             );
-            
             // Add user details to authentication
             var details = new HashMap<String, Object>();
             details.put("email", email);
-            details.put("role", roleName);
+            details.put("role", role);
             authentication.setDetails(details);
-            
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Authentication successful for user: {} with role: {}", email, roleName);
+            log.debug("Authentication successful for user: {} with role: {}", email, role);
             
         } catch (Exception e) {
             log.warn("JWT authentication failed: {}", e.getMessage());
