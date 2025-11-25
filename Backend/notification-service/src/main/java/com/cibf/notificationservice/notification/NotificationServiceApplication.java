@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
-//package lk.bookfair.notification;
->>>>>>> 182a72750320ab62862578df79279902e41b45c1
+
 package com.cibf.notificationservice.notification;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +16,15 @@ public class NotificationServiceApplication {
 		final Thread mainThread = Thread.currentThread();
 
 		// Add shutdown hook for graceful shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			log.info(" Detected shutdown, starting graceful shutdown...");
-			try {
-				mainThread.join();
-			} catch (InterruptedException e) {
-				log.error("Error during shutdown", e);
-			}
-			log.info(" Application shut down gracefully");
-		}));
+//		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//			log.info(" Detected shutdown, starting graceful shutdown...");
+//			try {
+//				mainThread.join();
+//			} catch (InterruptedException e) {
+//				log.error("Error during shutdown", e);
+//			}
+//			log.info(" Application shut down gracefully");
+//		}));
 
 		// Start the application
 		SpringApplication.run(NotificationServiceApplication.class, args);
