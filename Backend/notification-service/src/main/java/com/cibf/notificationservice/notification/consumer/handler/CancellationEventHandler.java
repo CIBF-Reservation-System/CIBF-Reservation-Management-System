@@ -2,11 +2,15 @@ package com.cibf.notificationservice.notification.consumer.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.cibf.notificationservice.notification.model.event.CancellationEvent;
 import com.cibf.notificationservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -14,17 +18,58 @@ import org.springframework.stereotype.Component;
 public class CancellationEventHandler {
 
     private final NotificationService notificationService;
+
     private final Gson gson = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+            .registerTypeAdapter(LocalDateTime.class,
+                    (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
+                            LocalDateTime.parse(json.getAsString(),
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
             .create();
 
     public void handle(String eventData) {
 
         log.info(" Processing CANCELLATION event");
 
+        // First check if eventData is null or empty
+        if (eventData == null) {
+            log.error(" Event data is NULL - no data received from Kafka");
+            throw new IllegalArgumentException("Event data is null - no data received from Kafka");
+        }
+
+        if (eventData.trim().isEmpty()) {
+            log.error(" Event data is EMPTY - received empty string from Kafka");
+            throw new IllegalArgumentException("Event data is empty - received empty string from Kafka");
+        }
+
+        //  Log the raw incoming JSON first
+        log.info(" Raw event data received (length: {}):", eventData.length());
+        log.info("{}", eventData);
+
         try {
-            // Parse JSON to CancellationEvent
-            CancellationEvent event = gson.fromJson(eventData, CancellationEvent.class);
+            // Parse JSON to CancellationEvent with explicit error handling
+            CancellationEvent event = null;
+            try {
+                event = gson.fromJson(eventData, CancellationEvent.class);
+            } catch (Exception parseEx) {
+                log.error(" Gson parsing exception: {}", parseEx.getMessage());
+                log.error("Full parse exception:", parseEx);
+                throw new IllegalArgumentException(
+                        "Failed to parse JSON with Gson: " + parseEx.getMessage() +
+                                ". JSON: " + eventData,
+                        parseEx
+                );
+            }
+
+            //  Better null check with more info
+            if (event == null) {
+                throw new IllegalArgumentException(
+                        "Failed to parse cancellation event - Gson returned null. " +
+                                "This usually means the JSON is empty, invalid, or field names don't match. " +
+                                "Received JSON: " + eventData
+                );
+            }
+
+            log.info(" JSON parsed successfully");
 
             // Validate event
             validateEvent(event);
@@ -36,19 +81,23 @@ public class CancellationEventHandler {
             notificationService.processCancellationNotification(event);
 
             log.info(" Cancellation event processed successfully");
+            log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         } catch (Exception e) {
-            log.error(" Error handling cancellation event", e);
-            log.error("Event data: {}", eventData);
+            log.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            log.error(" Error handling cancellation event");
+            log.error("Error type: {}", e.getClass().getName());
+            log.error("Error message: {}", e.getMessage());
+            log.error("Event data that failed: {}", eventData);
+            log.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            log.error("Full stack trace:", e);
             throw new RuntimeException("Failed to handle cancellation event", e);
         }
     }
 
     private void validateEvent(CancellationEvent event) {
 
-        if (event == null) {
-            throw new IllegalArgumentException("Cancellation event is null");
-        }
+        log.info(" Validating cancellation event...");
 
         if (event.getReservationId() == null || event.getReservationId().isEmpty()) {
             throw new IllegalArgumentException("Reservation ID is required");

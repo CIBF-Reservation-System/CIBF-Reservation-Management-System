@@ -16,15 +16,15 @@ public class NotificationServiceApplication {
 		final Thread mainThread = Thread.currentThread();
 
 		// Add shutdown hook for graceful shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			log.info(" Detected shutdown, starting graceful shutdown...");
-			try {
-				mainThread.join();
-			} catch (InterruptedException e) {
-				log.error("Error during shutdown", e);
-			}
-			log.info(" Application shut down gracefully");
-		}));
+//		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//			log.info(" Detected shutdown, starting graceful shutdown...");
+//			try {
+//				mainThread.join();
+//			} catch (InterruptedException e) {
+//				log.error("Error during shutdown", e);
+//			}
+//			log.info(" Application shut down gracefully");
+//		}));
 
 		// Start the application
 		SpringApplication.run(NotificationServiceApplication.class, args);
