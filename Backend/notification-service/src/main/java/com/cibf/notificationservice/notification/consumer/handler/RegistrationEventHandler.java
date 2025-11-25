@@ -1,6 +1,7 @@
 package com.cibf.notificationservice.notification.consumer.handler;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.cibf.notificationservice.notification.model.event.RegistrationEvent;
 import com.cibf.notificationservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -13,18 +14,21 @@ import org.springframework.stereotype.Component;
 public class RegistrationEventHandler {
 
     private final NotificationService notificationService;
-    private final Gson gson;
+
+    //Use ObjectMapper instead of Gson (to match @JsonProperty annotations)
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
 
     public void handle(String eventData) {
         try {
             log.info(" Processing registration event...");
 
-            // Parse JSON to RegistrationEvent (java object)
-            RegistrationEvent event = gson.fromJson(eventData, RegistrationEvent.class);
+            // Parse JSON using Jackson (which understands @JsonProperty)
+            RegistrationEvent event = objectMapper.readValue(eventData, RegistrationEvent.class);
 
             // Validate event
             if (event == null || event.getEmail() == null) {
-                log.warn(" Invalid registration event received");
+                log.warn("⚠ Invalid registration event received");
                 return;
             }
 
@@ -36,6 +40,9 @@ public class RegistrationEventHandler {
 
             log.info(" Registration event processed successfully");
 
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            log.error(" Invalid JSON format: {}", e.getMessage());
+            throw new RuntimeException("Invalid JSON", e);
         } catch (Exception e) {
             log.error(" Error handling registration event: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to process registration event", e);
