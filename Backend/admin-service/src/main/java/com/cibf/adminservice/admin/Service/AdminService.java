@@ -124,7 +124,9 @@ public class AdminService {
 
     public Object getAllStalls() {
         try {
+
             return stallServiceClient.getAllStalls().getBody();
+
         } catch (Exception e) {
             throw new ServiceUnavailableException("Stall service is unavailable");
         }
@@ -144,10 +146,6 @@ public class AdminService {
             throw new ServiceUnavailableException("Stall service is unavailable");
         }
     }
-
-
-
-
 
     // ==================== RESERVATION MANAGEMENT ====================
     public Object getAllReservations(String status, int page, int size) {
